@@ -1,0 +1,21 @@
+services:
+  - type: web
+    name: protocolos-online
+    runtime: node
+    env: node
+    buildCommand: npm install
+    startCommand: npm start
+    envVars:
+      - key: NODE_VERSION
+        value: 18
+      - key: DATABASE_URL
+        sync: false
+      - key: SESSION_SECRET
+        generateValue: true
+      - key: PORT
+        value: 3001
+
+databases:
+  - name: protocolos-db
+    databaseName: protocolos_online
+    user: protocolos_user
