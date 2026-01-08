@@ -1,0 +1,23 @@
+{
+  "name": "site-protocolos",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "db:init": "node server/init-db.js",
+    "admin:create": "node server/cli-create-admin.js",
+    "servidor:reset-password": "node server/cli-reset-servidor-password.js",
+    "dev": "node server/index.js",
+    "start": "node server/index.js"
+  },
+  "dependencies": {
+    "connect-pg-simple": "^10.0.0",
+    "dotenv": "^16.4.5",
+    "express": "^4.19.2",
+    "express-rate-limit": "^8.2.1",
+    "express-session": "^1.18.1",
+    "helmet": "^8.1.0",
+    "pg": "^8.13.1",
+    "argon2": "^0.28.7"
+  }
+}

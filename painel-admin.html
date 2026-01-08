@@ -1,0 +1,2805 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestão Administrativa - SEMED</title>
+    <style>
+        :root {
+            /* CORES IGUAIS AO SERVIDOR (#0a3d62) */
+            --primary-color: #0a3d62;
+            --primary-hover: #082d49;
+            --accent-color: #3c6382;
+            /* Usado para botões de destaque */
+            --bg-color: #f0f2f5;
+            --text-color: #333;
+        }
+
+        body {
+            font-family: 'Segoe UI', 'Roboto', Helvetica, Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            height: 100vh;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+        }
+
+        /* --- BARRA LATERAL --- */
+        .sidebar {
+            width: 260px;
+            /* Gradiente original do servidor */
+            background: linear-gradient(135deg, #0a3d62, #3c6382);
+            color: white;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 4px 0 15px rgba(0, 0, 0, 0.1);
+            z-index: 10;
+            flex-shrink: 0;
+        }
+
+        .sidebar-header {
+            padding: 25px;
+            text-align: center;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            background: rgba(0, 0, 0, 0.1);
+        }
+
+        .sidebar-header h2 {
+            margin: 0;
+            font-size: 18px;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+        }
+
+        .sidebar-header small {
+            display: block;
+            font-size: 11px;
+            opacity: 0.7;
+            margin-top: 5px;
+            font-weight: 400;
+        }
+
+        .menu {
+            list-style: none;
+            padding: 0;
+            margin: 20px 0;
+        }
+
+        .menu a {
+            display: flex;
+            align-items: center;
+            padding: 15px 25px;
+            color: rgba(255, 255, 255, 0.85);
+            text-decoration: none;
+            font-size: 14px;
+            transition: all 0.3s ease;
+            border-left: 4px solid transparent;
+            cursor: pointer;
+            font-weight: 500;
+        }
+
+        .menu a:hover,
+        .menu a.active {
+            background: rgba(255, 255, 255, 0.1);
+            border-left-color: #00e676;
+            /* Verde destaque */
+            color: white;
+        }
+
+        .menu-icon {
+            margin-right: 12px;
+            font-size: 18px;
+        }
+
+        /* --- ÁREA PRINCIPAL --- */
+        .main-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow-y: auto;
+            height: 100vh;
+        }
+
+        /* --- CABEÇALHO SUPERIOR --- */
+        .header {
+            min-height: 70px;
+            background: white;
+            display: flex;
+            justify-content: space-between;
+            /* Mudança para espalhar itens */
+            align-items: center;
+            padding: 0 30px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            position: sticky;
+            top: 0;
+            z-index: 5;
+        }
+
+        .header-title {
+            font-size: 18px;
+            font-weight: 700;
+            color: var(--primary-color);
+        }
+
+        .profile-container {
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+            padding: 6px 12px;
+            border-radius: 30px;
+            border: 1px solid #eee;
+            background: #fff;
+        }
+
+        .profile-name {
+            margin-right: 12px;
+            color: #555;
+            font-weight: 600;
+            font-size: 13px;
+        }
+
+        .profile-icon {
+            width: 32px;
+            height: 32px;
+            background: var(--primary-color);
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: white;
+            font-size: 14px;
+        }
+
+        /* --- MENU DROPDOWN DO PERFIL --- */
+        .profile-menu {
+            position: absolute;
+            top: 70px;
+            right: 30px;
+            background: white;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            min-width: 200px;
+            display: none;
+            z-index: 100;
+            overflow: hidden;
+        }
+
+        .profile-menu.active {
+            display: block;
+        }
+
+        .profile-menu a {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 12px 16px;
+            color: var(--primary-color);
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 500;
+            border-bottom: 1px solid #f0f0f0;
+            transition: 0.2s;
+            cursor: pointer;
+        }
+
+        .profile-menu a:last-child {
+            border-bottom: none;
+        }
+
+        .profile-menu a:hover {
+            background-color: #f8f9fa;
+        }
+
+        .profile-menu a.logout {
+            color: #dc3545;
+        }
+
+        /* --- ESTILOS DE CARDS E LAYOUT --- */
+        .card {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 15px rgba(0, 0, 0, 0.04);
+            margin: 25px auto;
+            max-width: 1200px;
+            width: 92%;
+            border: 1px solid #eaecf0;
+        }
+
+        /* --- ESTILOS DO FORMULÁRIO --- */
+        .doc-header {
+            text-align: center;
+            margin-bottom: 30px;
+            border-bottom: 2px solid var(--primary-color);
+            padding-bottom: 20px;
+        }
+
+        .doc-header img {
+            max-width: 450px;
+            height: auto;
+        }
+
+        .doc-header h1 {
+            color: var(--primary-color);
+            margin: 15px 0 5px 0;
+            font-size: 20px;
+            text-transform: uppercase;
+            font-weight: 700;
+        }
+
+        .form-section-title {
+            background-color: #f8f9fa;
+            color: var(--primary-color);
+            padding: 10px 15px;
+            font-weight: 700;
+            border-radius: 6px;
+            margin-top: 30px;
+            margin-bottom: 20px;
+            font-size: 14px;
+            border-left: 4px solid var(--primary-color);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(12, 1fr);
+            gap: 20px;
+        }
+
+        .col-12 { grid-column: span 12; }
+        .col-8 { grid-column: span 8; }
+        .col-6 { grid-column: span 6; }
+        .col-5 { grid-column: span 5; }
+        .col-4 { grid-column: span 4; }
+        .col-3 { grid-column: span 3; }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .form-group label {
+            font-size: 12px;
+            font-weight: 600;
+            color: #555;
+            margin-bottom: 6px;
+            text-transform: uppercase;
+        }
+
+        .form-group input,
+        .form-group select {
+            padding: 10px 12px;
+            border: 1px solid #dde1e6;
+            border-radius: 6px;
+            font-family: inherit;
+            font-size: 14px;
+            transition: all 0.2s;
+            outline: none;
+            height: 42px;
+            box-sizing: border-box;
+            width: 100%;
+            background-color: #fff;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(10, 61, 98, 0.1);
+        }
+
+        .radio-group {
+            display: flex;
+            gap: 20px;
+            padding: 10px 0;
+            flex-wrap: wrap;
+        }
+
+        .radio-item {
+            display: flex;
+            align-items: center;
+            font-size: 14px;
+            color: #444;
+            cursor: pointer;
+        }
+
+        .radio-item input[type="radio"] {
+            margin-right: 8px;
+            cursor: pointer;
+            width: 18px;
+            height: 18px;
+            accent-color: var(--primary-color);
+        }
+
+        .action-buttons {
+            margin-top: 40px;
+            display: flex;
+            justify-content: flex-end;
+            gap: 15px;
+            padding-top: 20px;
+            border-top: 1px solid #eee;
+        }
+
+        .btn {
+            padding: 12px 28px;
+            border: none;
+            border-radius: 6px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.2s;
+            font-size: 14px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .btn-primary {
+            background-color: var(--primary-color);
+            color: white;
+            box-shadow: 0 4px 6px rgba(10, 61, 98, 0.2);
+        }
+
+        .btn-primary:hover {
+            background-color: var(--primary-hover);
+            transform: translateY(-1px);
+        }
+
+        .btn-secondary {
+            background-color: #f1f3f5;
+            color: #495057;
+        }
+
+        .btn-secondary:hover {
+            background-color: #e9ecef;
+        }
+
+        .info-box {
+            background-color: #fff8e1;
+            color: #856404;
+            padding: 15px 20px;
+            border-radius: 6px;
+            font-size: 13px;
+            margin-top: 20px;
+            border-left: 4px solid #ffc107;
+        }
+
+        /* --- FILTROS --- */
+        .filter-bar {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 25px;
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            border: 1px solid #eee;
+            flex-wrap: wrap;
+            align-items: flex-end;
+        }
+
+        .filter-group {
+            display: flex;
+            flex-direction: column;
+            flex: 1;
+            min-width: 200px;
+        }
+
+        .filter-group label {
+            font-size: 12px;
+            font-weight: 600;
+            color: #666;
+            margin-bottom: 5px;
+            text-transform: uppercase;
+        }
+
+        .filter-group input,
+        .filter-group select {
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 14px;
+            height: 40px;
+            box-sizing: border-box;
+        }
+
+        .btn-filter {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 0 25px;
+            height: 40px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: 0.2s;
+            font-size: 14px;
+        }
+
+        .btn-filter:hover {
+            background-color: var(--primary-hover);
+        }
+
+        .btn-clear {
+            background-color: #fff;
+            border: 1px solid #ccc;
+            color: #555;
+            padding: 0 15px;
+            height: 40px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        /* --- PAGINAÇÃO --- */
+        .pagination-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 5px;
+            margin-top: 25px;
+            padding: 20px 0;
+        }
+
+        .pagination-btn {
+            background-color: #fff;
+            border: 1px solid #ddd;
+            color: var(--primary-color);
+            padding: 8px 12px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 13px;
+            transition: 0.2s;
+        }
+
+        .pagination-btn:hover:not(:disabled) {
+            background-color: #f0f0f0;
+            border-color: var(--primary-color);
+        }
+
+        .pagination-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .pagination-btn.active {
+            background-color: var(--primary-color);
+            color: white;
+            border-color: var(--primary-color);
+        }
+
+        .pagination-info {
+            color: #666;
+            font-size: 13px;
+            margin-left: 20px;
+        }
+
+        /* --- TABELA --- */
+        .table-responsive {
+            overflow-x: auto;
+            border-radius: 8px;
+            border: 1px solid #e0e0e0;
+        }
+
+        .table-admin {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 14px;
+            white-space: nowrap;
+        }
+
+        .table-admin thead {
+            background-color: #f1f3f5;
+        }
+
+        .table-admin th {
+            padding: 15px 15px;
+            text-align: left;
+            font-weight: 700;
+            color: #444;
+            font-size: 12px;
+            text-transform: uppercase;
+            border-bottom: 2px solid #ddd;
+        }
+
+        .table-admin td {
+            padding: 15px 15px;
+            border-bottom: 1px solid #eee;
+            color: #333;
+            vertical-align: middle;
+        }
+
+        .table-admin tbody tr:hover {
+            background-color: #f8fbff;
+        }
+
+        /* --- BOTÕES E BADGES --- */
+        .btn-view {
+            background: white;
+            border: 1px solid var(--primary-color);
+            color: var(--primary-color);
+            padding: 6px 12px;
+            border-radius: 4px;
+            font-size: 12px;
+            cursor: pointer;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .btn-view:hover {
+            background: #f0f4ff;
+        }
+
+        .status-badge {
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+        }
+
+        .st-enviado {
+            background: #e3f2fd;
+            color: #1565c0;
+        }
+
+        .st-analise {
+            background: #fff3e0;
+            color: #ef6c00;
+        }
+
+        .st-deferido {
+            background: #e8f5e9;
+            color: #2e7d32;
+        }
+
+        .st-indeferido {
+            background: #ffebee;
+            color: #c62828;
+        }
+
+        /* --- PÁGINA DE DETALHES ADMIN --- */
+        .admin-actions-panel {
+            background: #fff8e1;
+            border: 1px solid #ffe082;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .admin-actions-title {
+            font-weight: 700;
+            color: #f57f17;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(12, 1fr);
+            gap: 15px;
+            margin-top: 15px;
+        }
+
+        .col-4 {
+            grid-column: span 4;
+        }
+
+        .col-6 {
+            grid-column: span 6;
+        }
+
+        .col-12 {
+            grid-column: span 12;
+        }
+
+        .form-label {
+            font-size: 11px;
+            text-transform: uppercase;
+            color: #777;
+            font-weight: 600;
+            margin-bottom: 4px;
+            display: block;
+        }
+
+        .form-value {
+            font-size: 14px;
+            color: #333;
+            background: #f9f9f9;
+            padding: 10px;
+            border-radius: 5px;
+            border: 1px solid #eee;
+            min-height: 20px;
+        }
+
+        .section-header {
+            margin-top: 30px;
+            margin-bottom: 15px;
+            border-bottom: 2px solid #eee;
+            padding-bottom: 10px;
+            color: var(--primary-color);
+            font-weight: 700;
+            font-size: 16px;
+        }
+
+        .btn-delete-protocol {
+            background-color: #ffebee;
+            color: #c62828;
+            border: 1px solid #ef9a9a;
+            padding: 12px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            margin-top: 40px;
+            width: 100%;
+            transition: 0.2s;
+        }
+
+        .btn-delete-protocol:hover {
+            background-color: #c62828;
+            color: white;
+        }
+
+        .btn-save-status {
+            background-color: #2e7d32;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: 600;
+        }
+
+        /* Tabela Anexos */
+        .table-docs {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+        }
+
+        .table-docs th {
+            background: #f5f5f5;
+            padding: 10px;
+            text-align: left;
+        }
+
+        .table-docs td {
+            border-bottom: 1px solid #eee;
+            padding: 10px;
+        }
+
+        .btn-sm-danger {
+            background: #ffebee;
+            color: #c62828;
+            border: 1px solid #ffcdd2;
+            padding: 4px 8px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 11px;
+        }
+
+        .btn-sm-danger:hover {
+            background: #c62828;
+            color: white;
+        }
+
+        .btn-attach-admin {
+            background-color: var(--accent-color);
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 13px;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .mobile-menu-btn {
+            display: none;
+            background: #fff;
+            border: 1px solid #e9ecef;
+            color: var(--primary-color);
+            border-radius: 10px;
+            padding: 8px 12px;
+            font-size: 18px;
+            line-height: 1;
+            cursor: pointer;
+        }
+
+        /* Overlay para sidebar mobile */
+        .sidebar-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 150;
+            opacity: 0;
+            transition: opacity 0.25s ease;
+        }
+
+        .sidebar-overlay.active {
+            display: block;
+            opacity: 1;
+        }
+
+        /* =========================================
+           RESPONSIVIDADE - TABLETS (max-width: 1024px)
+           ========================================= */
+        @media (max-width: 1024px) {
+            .sidebar {
+                width: 220px;
+            }
+
+            .card {
+                max-width: 100%;
+                width: 95%;
+                padding: 25px;
+            }
+
+            .doc-header img {
+                max-width: 300px;
+            }
+
+            .filter-bar {
+                padding: 15px;
+            }
+
+            .filter-group {
+                min-width: 150px;
+            }
+        }
+
+        /* =========================================
+           RESPONSIVIDADE - MOBILE (max-width: 768px)
+           ========================================= */
+        @media (max-width: 768px) {
+            body {
+                flex-direction: column;
+                height: auto;
+                min-height: 100vh;
+            }
+
+            .sidebar {
+                display: flex;
+                position: fixed;
+                top: 0;
+                left: 0;
+                height: 100vh;
+                width: 280px;
+                transform: translateX(-100%);
+                transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+                z-index: 200;
+            }
+
+            .sidebar.open {
+                transform: translateX(0);
+            }
+
+            body.sidebar-open {
+                overflow: hidden;
+            }
+
+            .mobile-menu-btn {
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+                flex: 0 0 auto;
+            }
+
+            .main-content {
+                height: auto;
+                min-height: 100vh;
+            }
+
+            .header {
+                justify-content: space-between;
+                padding: 0 15px;
+                min-height: 60px;
+            }
+
+            .header-title {
+                font-size: 16px;
+            }
+
+            .profile-name {
+                display: none;
+            }
+
+            /* Grid responsivo */
+            .col-12, .col-8, .col-6, .col-5, .col-4, .col-3 {
+                grid-column: span 12;
+            }
+
+            .form-grid {
+                gap: 12px;
+            }
+
+            /* Cards */
+            .card {
+                padding: 20px;
+                width: 95%;
+                margin: 15px auto;
+                border-radius: 10px;
+            }
+
+            /* Filtros */
+            .filter-bar {
+                flex-direction: column;
+                align-items: stretch;
+                padding: 15px;
+                gap: 12px;
+            }
+
+            .filter-group {
+                min-width: unset;
+            }
+
+            .btn-filter,
+            .btn-clear {
+                width: 100%;
+            }
+
+            /* Painel admin */
+            .admin-actions-panel {
+                flex-direction: column;
+                align-items: stretch;
+                padding: 15px;
+            }
+
+            .admin-actions-panel select {
+                width: 100%;
+            }
+
+            /* Tabela responsiva */
+            .table-responsive {
+                margin: 0 -10px;
+                width: calc(100% + 20px);
+                border-radius: 0;
+            }
+
+            .table-admin th,
+            .table-admin td {
+                padding: 12px 10px;
+                font-size: 13px;
+            }
+
+            /* Esconde colunas menos importantes em mobile */
+            .table-admin th:nth-child(4),
+            .table-admin td:nth-child(4) {
+                display: none;
+            }
+
+            /* Paginação */
+            .pagination-container {
+                flex-direction: column;
+                gap: 12px;
+            }
+
+            .pagination-info {
+                margin-left: 0;
+            }
+
+            /* Documento/header */
+            .doc-header img {
+                max-width: 250px;
+            }
+
+            .doc-header h1 {
+                font-size: 16px;
+            }
+
+            .section-header {
+                font-size: 14px;
+            }
+
+            /* Tabelas: permite rolagem horizontal em telas pequenas */
+            table,
+            .table-docs {
+                display: block;
+                width: 100%;
+                overflow-x: auto;
+                -webkit-overflow-scrolling: touch;
+            }
+
+            /* Chat */
+            .chat-container {
+                height: 400px;
+            }
+
+            .chat-message {
+                max-width: 90%;
+            }
+
+            /* Menu dropdown */
+            .profile-menu {
+                right: 10px;
+                top: 60px;
+            }
+        }
+
+        /* =========================================
+           RESPONSIVIDADE - MOBILE PEQUENO (max-width: 480px)
+           ========================================= */
+        @media (max-width: 480px) {
+            .card {
+                padding: 15px;
+                width: 100%;
+                margin: 10px 0;
+                border-radius: 0;
+                border-left: none;
+                border-right: none;
+            }
+
+            .form-section-title {
+                font-size: 12px;
+                padding: 8px 12px;
+            }
+
+            .form-group label,
+            .form-label {
+                font-size: 10px;
+            }
+
+            .form-group input,
+            .form-group select {
+                height: 40px;
+                font-size: 14px;
+            }
+
+            .btn {
+                padding: 10px 16px;
+                font-size: 13px;
+            }
+
+            .table-admin th,
+            .table-admin td {
+                padding: 10px 8px;
+                font-size: 12px;
+            }
+
+            .status-badge {
+                padding: 4px 8px;
+                font-size: 10px;
+            }
+
+            .btn-view {
+                padding: 5px 10px;
+                font-size: 11px;
+            }
+
+            .sidebar {
+                width: 100%;
+            }
+
+            .header-title {
+                font-size: 14px;
+            }
+
+            .filter-bar {
+                padding: 12px;
+            }
+
+            .pagination-btn {
+                padding: 6px 10px;
+                font-size: 12px;
+            }
+
+            /* Chat compacto */
+            .chat-container {
+                height: 350px;
+            }
+
+            .chat-header {
+                padding: 12px 15px;
+                font-size: 14px;
+            }
+
+            .chat-messages {
+                padding: 15px;
+            }
+
+            .chat-message {
+                padding: 10px 14px;
+                font-size: 13px;
+            }
+
+            .chat-input-container {
+                padding: 10px;
+            }
+
+            .chat-input {
+                padding: 10px 14px;
+                font-size: 13px;
+            }
+
+            .chat-send-btn {
+                width: 40px;
+                height: 40px;
+            }
+        }
+
+        /* =========================================
+           ESTILOS DO CHAT
+           ========================================= */
+        .chat-container {
+            background: #fff;
+            border-radius: 12px;
+            border: 1px solid #e0e0e0;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            height: 450px;
+        }
+
+        .chat-header {
+            background: linear-gradient(135deg, #0a3d62, #3c6382);
+            color: white;
+            padding: 15px 20px;
+            font-weight: 600;
+            font-size: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .chat-header svg {
+            width: 20px;
+            height: 20px;
+            fill: currentColor;
+        }
+
+        .chat-messages {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px;
+            background: #f8f9fa;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .chat-messages:empty::before {
+            content: "Nenhuma mensagem ainda. Inicie uma conversa!";
+            color: #999;
+            text-align: center;
+            padding: 40px;
+            font-style: italic;
+        }
+
+        .chat-message {
+            max-width: 80%;
+            padding: 12px 16px;
+            border-radius: 16px;
+            font-size: 14px;
+            line-height: 1.5;
+            position: relative;
+            word-wrap: break-word;
+        }
+
+        .chat-message.sent {
+            background: linear-gradient(135deg, #0a3d62, #1e5f8a);
+            color: white;
+            align-self: flex-end;
+            border-bottom-right-radius: 4px;
+        }
+
+        .chat-message.received {
+            background: white;
+            color: #333;
+            align-self: flex-start;
+            border: 1px solid #e0e0e0;
+            border-bottom-left-radius: 4px;
+        }
+
+        .chat-message-sender {
+            font-size: 11px;
+            font-weight: 600;
+            margin-bottom: 4px;
+            opacity: 0.85;
+        }
+
+        .chat-message.received .chat-message-sender {
+            color: #0a3d62;
+        }
+
+        .chat-message-time {
+            font-size: 10px;
+            opacity: 0.7;
+            margin-top: 6px;
+            text-align: right;
+        }
+
+        .chat-input-container {
+            padding: 15px;
+            background: white;
+            border-top: 1px solid #e0e0e0;
+            display: flex;
+            gap: 10px;
+            align-items: flex-end;
+        }
+
+        .chat-input {
+            flex: 1;
+            border: 1px solid #dde1e6;
+            border-radius: 20px;
+            padding: 12px 18px;
+            font-size: 14px;
+            resize: none;
+            max-height: 100px;
+            min-height: 44px;
+            font-family: inherit;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+
+        .chat-input:focus {
+            border-color: #0a3d62;
+        }
+
+        .chat-send-btn {
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            border: none;
+            background: linear-gradient(135deg, #0a3d62, #3c6382);
+            color: white;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: transform 0.2s, box-shadow 0.2s;
+            flex-shrink: 0;
+        }
+
+        .chat-send-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 4px 12px rgba(10, 61, 98, 0.3);
+        }
+
+        .chat-send-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .chat-send-btn svg {
+            width: 20px;
+            height: 20px;
+            fill: currentColor;
+        }
+
+        .chat-loading {
+            text-align: center;
+            padding: 20px;
+            color: #666;
+        }
+
+        .chat-badge {
+            background: #dc3545;
+            color: white;
+            font-size: 10px;
+            font-weight: 700;
+            padding: 2px 6px;
+            border-radius: 10px;
+            margin-left: 8px;
+        }
+
+        .chat-section {
+            margin-top: 30px;
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- Overlay para fechar sidebar no mobile -->
+    <div class="sidebar-overlay" onclick="toggleSidebar(false)"></div>
+
+    <div class="sidebar">
+        <div class="sidebar-header">
+            <h2>Portal do Gestor</h2>
+            <small>Administração SEMED</small>
+        </div>
+        <ul class="menu">
+            <li>
+                <a href="#" onclick="irParaNovoRequerimento(this)">
+                    <span class="menu-icon"></span> Novo Requerimento
+                </a>
+            </li>
+            <li>
+                <a href="#" class="active" onclick="irParaLista(this)">
+                    <span class="menu-icon"></span> Visão Geral
+                </a>
+            </li>
+        </ul>
+    </div>
+
+    <div class="main-content">
+
+        <div class="header">
+            <button class="mobile-menu-btn" id="mobileMenuBtn" onclick="toggleSidebar()" aria-label="Abrir menu">☰</button>
+            <div class="header-title">Painel Administrativo</div>
+            <div class="profile-container" onclick="toggleProfileMenu()">
+                <span class="profile-name">Administrador</span>
+                <div class="profile-icon">A</div>
+                <div class="profile-menu" id="profileMenu">
+                    <a href="#" onclick="abrirPerfil(event)">Meu Perfil</a>
+                    <a href="#" class="logout" onclick="logout(event)">Sair</a>
+                </div>
+            </div>
+        </div>
+
+        <div id="listaProtocolosPage">
+            <div class="card">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                    <h2 style="color: var(--primary-color); margin: 0;">Todos os Protocolos</h2>
+                </div>
+
+                <div class="filter-bar">
+                    <div class="filter-group">
+                        <label>Buscar por Texto</label>
+                        <input type="text" id="buscaTexto" placeholder="Nome do servidor, ID...">
+                    </div>
+                    <div class="filter-group">
+                        <label>Status</label>
+                        <select id="buscaStatus">
+                            <option value="">Todos</option>
+                            <option value="Enviado">Enviado</option>
+                            <option value="Em Análise">Em Análise</option>
+                            <option value="Deferido">Deferido</option>
+                            <option value="Indeferido">Indeferido</option>
+                        </select>
+                    </div>
+                    <button class="btn-filter" onclick="carregarTabelaAdmin()">Filtrar</button>
+                    <button class="btn-clear" onclick="limparFiltros()">Limpar</button>
+                </div>
+
+                <div class="table-responsive">
+                    <table class="table-admin">
+                        <thead>
+                            <tr>
+                                <th>Protocolo</th>
+                                <th>Servidor (Requerente)</th>
+                                <th>Natureza</th>
+                                <th>Data Envio</th>
+                                <th>Status</th>
+                                <th style="text-align: right;">Ação</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tbodyAdmin">
+                        </tbody>
+                    </table>
+                </div>
+
+                <div id="paginationContainer" class="pagination-container" style="display: none;">
+                    <button class="pagination-btn" id="btnAnterior" onclick="irParaPaginaAnterior()">← Anterior</button>
+                    <div id="paginationButtons"></div>
+                    <button class="pagination-btn" id="btnProximo" onclick="irParaProximaPagina()">Próximo →</button>
+                    <div class="pagination-info"><span id="paginationInfo"></span></div>
+                </div>
+            </div>
+        </div>
+
+        <div id="novoRequerimentoPage" style="display: none;">
+            <form id="requerimentoFormAdmin" onsubmit="salvarRequerimentoAdmin(event)">
+                <div class="card">
+                    <div class="doc-header">
+                        <img src="brasão.png" alt="Brasão">
+                        <h1 style="margin-top: 15px; color: #333; font-size: 18px;">REQUERIMENTO</h1>
+                    </div>
+
+                    <div class="form-grid">
+                        <div class="form-group col-12">
+                            <label>Autoridade a quem é dirigido:</label>
+                            <input type="text" value="SECRETARIA MUNICIPAL DE EDUCAÇÃO" readonly
+                                style="background-color: #f2f2f2; color: #666; font-weight: 600;">
+                        </div>
+                    </div>
+
+                    <div class="form-section-title">1. Dados Pessoais</div>
+                    <div class="form-grid">
+                        <div class="form-group col-8">
+                            <label for="nomeAdmin">Nome Completo do Servidor(a):</label>
+                            <input type="text" id="nomeAdmin" name="nome" required placeholder="Digite seu nome completo">
+                        </div>
+                        <div class="form-group col-4">
+                            <label for="nascimentoAdmin">Data de Nascimento:</label>
+                            <input type="date" id="nascimentoAdmin" name="nascimento">
+                        </div>
+
+                        <div class="form-group col-4">
+                            <label for="cpfAdmin">CPF:</label>
+                            <input type="text" id="cpfAdmin" name="cpf" placeholder="000.000.000-00">
+                        </div>
+                        <div class="form-group col-4">
+                            <label for="rgAdmin">RG:</label>
+                            <input type="text" id="rgAdmin" name="rg">
+                        </div>
+                        <div class="form-group col-4">
+                            <label for="lotacaoAdmin">Lotação:</label>
+                            <input type="text" id="lotacaoAdmin" name="lotacao" placeholder="Ex: Escola Municipal...">
+                        </div>
+                    </div>
+
+                    <div class="form-section-title">2. Dados Funcionais</div>
+                    <div class="form-grid">
+                        <div class="form-group col-6">
+                            <label for="cargoAdmin">Cargo/Função:</label>
+                            <input type="text" id="cargoAdmin" name="cargo">
+                        </div>
+                        <div class="form-group col-3">
+                            <label for="classeAdmin">Classe:</label>
+                            <input type="text" id="classeAdmin" name="classe">
+                        </div>
+                        <div class="form-group col-3">
+                            <label for="nivelAdmin">Nível:</label>
+                            <input type="text" id="nivelAdmin" name="nivel">
+                        </div>
+
+                        <div class="form-group col-4">
+                            <label for="admissaoAdmin">Data de Admissão:</label>
+                            <input type="date" id="admissaoAdmin" name="admissao">
+                        </div>
+                        <div class="form-group col-8">
+                            <label>Vínculo Empregatício:</label>
+                            <div class="radio-group">
+                                <label class="radio-item"><input type="radio" name="vinculo" value="Estatutario"> Estatutário</label>
+                                <label class="radio-item"><input type="radio" name="vinculo" value="Outros"> Outros</label>
+                            </div>
+                        </div>
+
+                        <div class="form-group col-12">
+                            <label>Situação Funcional:</label>
+                            <div class="radio-group" style="background: #f8f9fa; padding: 15px; border-radius: 8px; border: 1px solid #eee;">
+                                <label class="radio-item"><input type="radio" name="situacao" value="Efetivo"> Efetivo</label>
+                                <label class="radio-item"><input type="radio" name="situacao" value="Prestador"> Prestador de Serviço</label>
+                                <label class="radio-item"><input type="radio" name="situacao" value="Temporario"> Professor Temporário</label>
+                                <label class="radio-item"><input type="radio" name="situacao" value="Comissionado"> Cargo Comissionado</label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-section-title">3. Endereço e Contato</div>
+                    <div class="form-grid">
+                        <div class="form-group col-12">
+                            <label for="enderecoAdmin">Endereço:</label>
+                            <input type="text" id="enderecoAdmin" name="endereco">
+                        </div>
+
+                        <div class="form-group col-5">
+                            <label for="bairroAdmin">Bairro:</label>
+                            <input type="text" id="bairroAdmin" name="bairro">
+                        </div>
+                        <div class="form-group col-4">
+                            <label for="municipioAdmin">Município:</label>
+                            <input type="text" id="municipioAdmin" name="municipio" value="Demerval Lobão">
+                        </div>
+                        <div class="form-group col-3">
+                            <label for="cepAdmin">CEP:</label>
+                            <input type="text" id="cepAdmin" name="cep">
+                        </div>
+
+                        <div class="form-group col-6">
+                            <label for="contatoAdmin">Telefone/Contato:</label>
+                            <input type="text" id="contatoAdmin" name="contato">
+                        </div>
+                        <div class="form-group col-6">
+                            <label for="emailAdmin">E-mail:</label>
+                            <input type="email" id="emailAdmin" name="email">
+                        </div>
+                    </div>
+
+                    <div class="form-section-title">4. Natureza do Requerimento</div>
+                    <div class="form-grid">
+                        <div class="form-group col-12">
+                            <label>Selecione o tipo de solicitação:</label>
+                            <div class="radio-group" style="background: #f8f9fa; padding: 15px; border-radius: 8px; border: 1px solid #eee;">
+                                <label class="radio-item"><input type="radio" name="natureza" value="Ferias"> Férias</label>
+                                <label class="radio-item"><input type="radio" name="natureza" value="LicencaPremio"> Licença Prêmio</label>
+                                <label class="radio-item"><input type="radio" name="natureza" value="LicencaMaternidade"> Licença Maternidade</label>
+                                <label class="radio-item"><input type="radio" name="natureza" value="outros" id="opcaoOutrosAdmin"> Outros</label>
+                            </div>
+
+                            <div class="form-group col-12" id="campoOutrosAdmin" style="display: none; margin-top: 15px;">
+                                <label>Descreva o motivo:</label>
+                                <input type="text" id="descricaoOutrosAdmin" name="descricaoOutros" placeholder="Especifique sua solicitação..." style="width: 100%;">
+                            </div>
+                        </div>
+
+                        <div class="form-group col-6">
+                            <label for="inicioAdmin">Início:</label>
+                            <input type="date" id="inicioAdmin" name="inicio">
+                        </div>
+                        <div class="form-group col-6">
+                            <label for="fimAdmin">Fim:</label>
+                            <input type="date" id="fimAdmin" name="fim">
+                        </div>
+                    </div>
+
+                    <div class="form-section-title">5. Anexos</div>
+                    <div class="info-box">
+                        <strong>IMPORTANTE:</strong> É obrigatório anexar o contracheque mais recente. O sistema aceita PDF ou Imagens (JPG/PNG) até 3MB.
+                    </div>
+                    <div class="form-grid" style="margin-top: 15px;">
+                        <div class="form-group col-12">
+                            <label for="anexoAdmin">Selecione o arquivo:</label>
+                            <input type="file" id="anexoAdmin" name="anexo" accept=".pdf, .jpg, .png, .jpeg" style="padding: 8px;">
+                        </div>
+                    </div>
+
+                    <div class="action-buttons">
+                        <button type="button" class="btn btn-secondary" onclick="limparFormularioAdmin()">Limpar</button>
+                        <button type="submit" class="btn btn-primary">Salvar e Enviar Protocolo</button>
+                    </div>
+
+                </div>
+            </form>
+        </div>
+
+        <div id="detalheProtocoloPage" style="display: none;">
+            <div class="card">
+                <button onclick="irParaLista()"
+                    style="background:none; border:none; color:#666; cursor:pointer; margin-bottom:15px; font-weight:600;">
+                    ← Voltar para a lista
+                </button>
+
+                <div
+                    style="display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #eee; padding-bottom: 20px; margin-bottom: 20px;">
+                    <div>
+                        <h1 style="margin:0; color:var(--primary-color); font-size: 22px;">PROTOCOLO <span
+                            id="detalheID"></span></h1>
+                        <span style="font-size: 13px; color: #777;">Requerente: <span
+                                id="detalheRequerente"></span></span>
+                    </div>
+                    <div id="badgeStatusAtual"></div>
+                </div>
+
+                <div class="action-buttons" style="margin-top: 10px; justify-content: flex-end;">
+                    <button type="button" class="btn btn-primary" id="btnRequerimentoFerias" onclick="abrirRequerimentoFerias()" style="display:none;">Requerimento de Férias (PDF)</button>
+                    <button type="button" class="btn btn-secondary" onclick="baixarProtocoloAtualPdf()">Baixar Protocolo (PDF)</button>
+                </div>
+
+                <div class="admin-actions-panel">
+                    <div class="admin-actions-title">
+                        <span>⚡ Ação Administrativa</span>
+                    </div>
+                    <div style="display:flex; gap: 10px; align-items: center;">
+                        <label style="font-size:13px; font-weight:600;">Alterar Status para:</label>
+                        <select id="novoStatus" style="padding: 8px; border-radius: 4px; border: 1px solid #ccc;">
+                            <option value="Enviado">Enviado</option>
+                            <option value="Em Análise">Em Análise</option>
+                            <option value="Deferido">Deferido</option>
+                            <option value="Indeferido">Indeferido</option>
+                        </select>
+                        <button class="btn-save-status" onclick="atualizarStatus()">Salvar Status</button>
+                    </div>
+                </div>
+
+                <div class="section-header">Dados do Requerimento</div>
+                <div class="form-grid">
+                    <div class="form-group col-8">
+                        <label>Nome Completo do Servidor(a):</label>
+                        <input type="text" id="viewNome" readonly>
+                    </div>
+                    <div class="form-group col-4">
+                        <label>Data de Nascimento:</label>
+                        <input type="text" id="viewNascimento" readonly>
+                    </div>
+                    <div class="form-group col-4">
+                        <label>CPF:</label>
+                        <input type="text" id="viewCPF" readonly>
+                    </div>
+                    <div class="form-group col-4">
+                        <label>RG:</label>
+                        <input type="text" id="viewRG" readonly>
+                    </div>
+                    <div class="form-group col-4">
+                        <label>Lotação:</label>
+                        <input type="text" id="viewLotacao" readonly>
+                    </div>
+                </div>
+
+                <div class="section-header">Dados Funcionais</div>
+                <div class="form-grid">
+                    <div class="form-group col-6">
+                        <label>Cargo/Função:</label>
+                        <input type="text" id="viewCargo" readonly>
+                    </div>
+                    <div class="form-group col-3">
+                        <label>Classe:</label>
+                        <input type="text" id="viewClasse" readonly>
+                    </div>
+                    <div class="form-group col-3">
+                        <label>Nível:</label>
+                        <input type="text" id="viewNivel" readonly>
+                    </div>
+                    <div class="form-group col-4">
+                        <label>Data de Admissão:</label>
+                        <input type="text" id="viewAdmissao" readonly>
+                    </div>
+                    <div class="form-group col-4">
+                        <label>Vínculo Empregatício:</label>
+                        <input type="text" id="viewVinculo" readonly>
+                    </div>
+                    <div class="form-group col-4">
+                        <label>Situação Funcional:</label>
+                        <input type="text" id="viewSituacao" readonly>
+                    </div>
+                </div>
+
+                <div class="section-header">Endereço e Contato</div>
+                <div class="form-grid">
+                    <div class="form-group col-12">
+                        <label>Endereço:</label>
+                        <input type="text" id="viewEndereco" readonly>
+                    </div>
+                    <div class="form-group col-5">
+                        <label>Bairro:</label>
+                        <input type="text" id="viewBairro" readonly>
+                    </div>
+                    <div class="form-group col-4">
+                        <label>Município:</label>
+                        <input type="text" id="viewMunicipio" readonly>
+                    </div>
+                    <div class="form-group col-3">
+                        <label>CEP:</label>
+                        <input type="text" id="viewCEP" readonly>
+                    </div>
+                    <div class="form-group col-6">
+                        <label>Telefone/Contato:</label>
+                        <input type="text" id="viewContato" readonly>
+                    </div>
+                    <div class="form-group col-6">
+                        <label>E-mail:</label>
+                        <input type="text" id="viewEmail" readonly>
+                    </div>
+                </div>
+
+                <div class="section-header">Natureza do Requerimento</div>
+                <div class="form-grid">
+                    <div class="form-group col-4">
+                        <label>Natureza:</label>
+                        <input type="text" id="viewNatureza" readonly>
+                    </div>
+                    <div class="form-group col-4">
+                        <label>Data Início:</label>
+                        <input type="text" id="viewInicio" readonly>
+                    </div>
+                    <div class="form-group col-4">
+                        <label>Data Fim:</label>
+                        <input type="text" id="viewFim" readonly>
+                    </div>
+                    <div class="form-group col-12" id="divDescricaoOutros" style="display:none;">
+                        <label>Descrição (Motivo):</label>
+                        <input type="text" id="viewDescricao" readonly>
+                    </div>
+                </div>
+
+                <div class="section-header"
+                    style="margin-top: 40px; display:flex; justify-content:space-between; align-items:center;">
+                    <span>📂 Gestão de Documentos</span>
+                    <div>
+                        <input type="file" id="inputAdminFile" style="display:none;" accept=".pdf, .jpg, .png">
+                        <button class="btn-attach-admin" onclick="document.getElementById('inputAdminFile').click()">
+                            📎 Anexar Parecer/Portaria (Secretaria)
+                        </button>
+                    </div>
+                </div>
+
+                <h4 style="margin: 20px 0 10px; color:#555;">Enviados pelo Servidor</h4>
+                <table class="table-docs">
+                    <thead>
+                        <tr>
+                            <th width="20%">Data</th>
+                            <th>Nome do Arquivo</th>
+                            <th width="15%" style="text-align:right;">Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody id="listaDocsServidor"></tbody>
+                </table>
+
+                <h4 style="margin: 30px 0 10px; color:#555; background:#e8eaf6; padding:8px; border-radius:4px;">
+                    Internos (Secretaria)</h4>
+                <table class="table-docs">
+                    <thead>
+                        <tr>
+                            <th width="20%">Data</th>
+                            <th>Nome do Arquivo</th>
+                            <th width="15%" style="text-align:right;">Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody id="listaDocsSecretaria"></tbody>
+                </table>
+
+                <!-- CHAT DO PROTOCOLO -->
+                <div class="section-header chat-section" style="margin-top: 40px;">
+                    <span>💬 Chat com o Servidor</span>
+                </div>
+                
+                <div class="chat-container">
+                    <div class="chat-header">
+                        <svg viewBox="0 0 24 24"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm0 14H5.17L4 17.17V4h16v12z"/><path d="M7 9h2v2H7zm4 0h2v2h-2zm4 0h2v2h-2z"/></svg>
+                        Comunicação com o Requerente
+                        <span id="chatUnreadBadge" class="chat-badge" style="display: none;">0</span>
+                    </div>
+                    <div class="chat-messages" id="chatMessages">
+                        <!-- Mensagens serão inseridas aqui -->
+                    </div>
+                    <div class="chat-input-container">
+                        <textarea 
+                            class="chat-input" 
+                            id="chatInput" 
+                            placeholder="Digite sua mensagem para o servidor..." 
+                            rows="1"
+                            onkeydown="handleChatKeydown(event)"
+                        ></textarea>
+                        <button class="chat-send-btn" id="chatSendBtn" onclick="enviarMensagemChat()" title="Enviar mensagem">
+                            <svg viewBox="0 0 24 24"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>
+                        </button>
+                    </div>
+                </div>
+
+                <hr style="margin-top: 50px; border: 0; border-top: 1px solid #eee;">
+
+                <button class="btn-delete-protocol" onclick="excluirProtocoloTotal()">
+                    🗑️ EXCLUIR ESTE PROTOCOLO PERMANENTEMENTE
+                </button>
+
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        let protocoloAtualId = null;
+        let protocoloDetalheAtual = null;
+        let paginaAtual = 1;
+        let protocolosFiltrados = [];
+        let sessionUser = null;
+
+        function escapeHtml(value) {
+            return String(value ?? '')
+                .replaceAll('&', '&amp;')
+                .replaceAll('<', '&lt;')
+                .replaceAll('>', '&gt;')
+                .replaceAll('"', '&quot;')
+                .replaceAll("'", '&#39;');
+        }
+
+        function isFeriasNatureza(payload) {
+            const v = String(payload?.natureza || '').toLowerCase();
+            return v === 'ferias';
+        }
+
+        function extractYear(value) {
+            if (!value) return '';
+            const match = String(value).match(/(\d{4})/);
+            return match ? match[1] : '';
+        }
+
+        function formatEndereco(payload) {
+            const parts = [payload?.endereco, payload?.bairro, payload?.municipio, payload?.estado, payload?.cep]
+                .map((x) => (x ? String(x).trim() : ''))
+                .filter((x) => x);
+            return parts.join(', ');
+        }
+
+        function buildRequerimentoFeriasHtml(protocolo) {
+            const p = protocolo?.payload || {};
+            const nome = escapeHtml(p.nome || '________________');
+            const cpf = escapeHtml(p.cpf || '________________');
+            const rg = escapeHtml(p.rg || '________________');
+            const endereco = escapeHtml(formatEndereco(p) || '________________');
+            const dataInicio = escapeHtml(p.inicio || '____/____/____');
+            const dataFim = escapeHtml(p.fim || '____/____/____');
+            const ano = escapeHtml(extractYear(p.inicio) || extractYear(p.fim) || String(new Date().getFullYear()));
+            const dataProtocolo = escapeHtml(p.data || new Date().toLocaleDateString('pt-BR'));
+
+            const requerimentoTexto = `Eu, ${nome}, funcionário(a) público efetivo, CPF: ${cpf}, RG: ${rg}, residente em ${endereco}, venho requerer minhas férias no período de ${dataInicio} a ${dataFim}, referente ao exercício de ${ano}.`;
+
+            return `<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Requerimento de Férias</title>
+    <style>
+        :root {
+            --primary: #0a3d62;
+            --text: #1f2a37;
+            --muted: #4b5563;
+            --border: #e5e7eb;
+        }
+        body { font-family: 'Segoe UI', Arial, sans-serif; margin: 22mm 18mm 26mm 18mm; color: var(--text); }
+        @page { margin: 16mm 18mm 32mm 18mm; }
+        .no-print { display: flex; gap: 10px; justify-content: flex-end; margin-bottom: 16px; }
+        .btn { border: 1px solid var(--primary); color: var(--primary); background: #fff; padding: 10px 14px; border-radius: 10px; cursor: pointer; font-weight: 700; }
+        .btn:hover { filter: brightness(0.98); }
+        header { display: flex; align-items: center; gap: 14px; border-bottom: 2px solid var(--border); padding-bottom: 12px; margin-bottom: 18px; }
+        header img { height: 68px; width: auto; object-fit: contain; }
+        .brand { display: flex; flex-direction: column; gap: 4px; }
+        .brand strong { font-size: 18px; color: var(--primary); }
+        .brand span { font-size: 12px; color: var(--muted); }
+        h1 { font-size: 20px; margin: 0 0 12px 0; color: var(--primary); }
+        section { margin-bottom: 18px; }
+        .card { border: 1px solid var(--border); border-radius: 12px; padding: 14px 16px; background: #fff; }
+        p { margin: 0 0 12px 0; line-height: 1.55; }
+        .info { color: var(--muted); font-size: 13px; }
+        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px 16px; margin-top: 10px; }
+        .item-label { font-size: 12px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.3px; margin-bottom: 2px; }
+        .item-value { font-weight: 700; color: var(--text); }
+        .autorizacao { margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--border); }
+        .autorizacao h3 { margin: 0 0 10px 0; font-size: 16px; color: var(--primary); }
+        .signature-block { margin-top: 32px; text-align: center; }
+        .signature-line { width: 280px; border-top: 1px solid #111; margin: 0 auto 6px auto; height: 32px; }
+        .signature-label { font-size: 13px; color: var(--muted); font-weight: 600; }
+        footer { position: fixed; bottom: 14mm; left: 0; right: 0; text-align: center; font-size: 11px; color: #4b5563; border-top: 1px solid var(--border); padding-top: 8px; margin: 0 18mm; }
+        @media print {
+            .no-print { display: none; }
+            body { margin: 0; }
+            footer { position: fixed; }
+        }
+    </style>
+</head>
+<body>
+    <div class="no-print">
+        <button class="btn" type="button" onclick="window.print()">Imprimir</button>
+        <button class="btn" type="button" onclick="window.close()">Fechar</button>
+    </div>
+    <header>
+        <img src="/assets/logo_sec.png" alt="Demerval Lobão" />
+        <div class="brand">
+            <strong>Secretaria Municipal de Educação</strong>
+            <span>Prefeitura de Demerval Lobão • Sistema de Protocolos</span>
+        </div>
+    </header>
+
+    <section class="card">
+        <h1>Requerimento de Férias</h1>
+        <p>${requerimentoTexto}</p>
+        <div class="grid">
+            <div>
+                <div class="item-label">Período solicitado</div>
+                <div class="item-value">${dataInicio} a ${dataFim}</div>
+            </div>
+            <div>
+                <div class="item-label">Exercício</div>
+                <div class="item-value">${ano}</div>
+            </div>
+            <div>
+                <div class="item-label">Cargo/Função</div>
+                <div class="item-value">${escapeHtml(p.cargo || '-')}</div>
+            </div>
+            <div>
+                <div class="item-label">Lotação</div>
+                <div class="item-value">${escapeHtml(p.lotacao || '-')}</div>
+            </div>
+        </div>
+
+        <div style="display:flex; justify-content:flex-end; margin-top:14px; font-weight:600; color: var(--muted);">
+            Data protocolada: ${dataProtocolo} • Demerval Lobão
+        </div>
+
+        <div class="autorizacao">
+            <h3>AUTORIZAÇÃO</h3>
+            <p>EU, Secretária Municipal de Educação de Demerval Lobão, autorizo as férias requeridas pelo funcionário supracitado, conforme os dados acima.</p>
+            <div style="display:flex; justify-content:flex-end; margin:10px 0 18px 0; font-weight:600; color: var(--muted);">
+                Demerval Lobão, ____/____/____
+            </div>
+            <div class="signature-block">
+                <div class="signature-line"></div>
+                <div class="signature-label">Secretária Municipal de Educação</div>
+            </div>
+        </div>
+    </section>
+
+    <footer>
+        Rua João Luis de Morais, 136, Centro, CEP: 64390-000 • CNPJ: 30.628.400/0001-07
+    </footer>
+</body>
+</html>`;
+        }
+
+        function abrirRequerimentoFerias() {
+            if (!protocoloDetalheAtual?.payload) {
+                alert('Abra um protocolo para gerar o requerimento.');
+                return;
+            }
+            if (!isFeriasNatureza(protocoloDetalheAtual.payload)) {
+                alert('O requerimento de férias só está disponível para protocolos de Férias.');
+                return;
+            }
+
+            const html = buildRequerimentoFeriasHtml(protocoloDetalheAtual);
+            const win = window.open('', '_blank');
+            if (!win) {
+                alert('O navegador bloqueou a janela do requerimento. Permita pop-ups para imprimir.');
+                return;
+            }
+            win.document.open();
+            win.document.write(html);
+            win.document.close();
+        }
+
+        function buildComprovanteHtml(protocolo) {
+            const id = protocolo?.id ?? '';
+            const codigo = protocolo?.codigo ?? id;
+            const p = protocolo?.payload ?? {};
+            const anexos = Array.isArray(p.anexos) ? p.anexos : [];
+            const anexosHtml = anexos.length
+                ? `<ul>${anexos.map(a => `<li>${escapeHtml(a.nome || 'Arquivo')}</li>`).join('')}</ul>`
+                : '<div>Nenhum anexo informado.</div>';
+
+            return `<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Protocolo ${escapeHtml(codigo)}</title>
+    <style>
+        body{font-family:Segoe UI, Arial, sans-serif; margin:24px; color:#111;}
+        .top{display:flex; align-items:center; justify-content:space-between; gap:14px; margin-bottom:18px;}
+        .brand{display:flex; align-items:center; gap:14px;}
+        .logo{height:56px; width:auto; object-fit:contain;}
+        h1{font-size:18px; margin:0;}
+        .muted{color:#555; font-size:12px; margin-top:4px;}
+        .box{border:1px solid #ddd; border-radius:10px; padding:14px; margin:12px 0;}
+        .grid{display:grid; grid-template-columns: 1fr 1fr; gap:10px;}
+        .row{display:flex; gap:8px;}
+        .k{min-width:170px; color:#444; font-weight:600;}
+        .v{color:#111;}
+        .btns{display:flex; gap:10px;}
+        .btn{border:1px solid #ccc; background:#fff; padding:10px 12px; border-radius:10px; cursor:pointer; font-weight:700;}
+        .btn.primary{border-color:#0a3d62; color:#0a3d62;}
+        @media print { .no-print{display:none;} body{margin:0;} }
+        @page { margin: 14mm; }
+    </style>
+</head>
+<body>
+    <div class="top">
+        <div class="brand">
+            <img class="logo" src="/assets/logo_sec.png" alt="SEMED" />
+            <div>
+                <h1>Comprovante de Protocolo</h1>
+                <div class="muted">Sistema de Protocolos – SEMED</div>
+            </div>
+        </div>
+        <div class="btns no-print">
+            <button class="btn primary" type="button" onclick="window.print()">Imprimir</button>
+            <button class="btn" type="button" onclick="window.close()">Fechar</button>
+        </div>
+    </div>
+
+    <div class="box">
+        <div class="row"><div class="k">Número do Protocolo:</div><div class="v">${escapeHtml(codigo)}</div></div>
+        <div class="row"><div class="k">Data de Criação:</div><div class="v">${escapeHtml(p.dataCriacao)}</div></div>
+        <div class="row"><div class="k">Status:</div><div class="v">${escapeHtml(p.status)}</div></div>
+    </div>
+
+    <div class="box">
+        <div class="grid">
+            <div class="row"><div class="k">Nome:</div><div class="v">${escapeHtml(p.nome)}</div></div>
+            <div class="row"><div class="k">CPF:</div><div class="v">${escapeHtml(p.cpf)}</div></div>
+            <div class="row"><div class="k">RG:</div><div class="v">${escapeHtml(p.rg)}</div></div>
+            <div class="row"><div class="k">Nascimento:</div><div class="v">${escapeHtml(p.nascimento)}</div></div>
+            <div class="row"><div class="k">Cargo:</div><div class="v">${escapeHtml(p.cargo)}</div></div>
+            <div class="row"><div class="k">Lotação:</div><div class="v">${escapeHtml(p.lotacao)}</div></div>
+            <div class="row"><div class="k">Classe:</div><div class="v">${escapeHtml(p.classe)}</div></div>
+            <div class="row"><div class="k">Nível:</div><div class="v">${escapeHtml(p.nivel)}</div></div>
+            <div class="row"><div class="k">Admissão:</div><div class="v">${escapeHtml(p.admissao)}</div></div>
+            <div class="row"><div class="k">Vínculo:</div><div class="v">${escapeHtml(p.vinculo)}</div></div>
+            <div class="row"><div class="k">Situação:</div><div class="v">${escapeHtml(p.situacao)}</div></div>
+            <div class="row"><div class="k">Contato:</div><div class="v">${escapeHtml(p.contato)}</div></div>
+            <div class="row"><div class="k">E-mail:</div><div class="v">${escapeHtml(p.email)}</div></div>
+            <div class="row"><div class="k">Endereço:</div><div class="v">${escapeHtml(p.endereco)}</div></div>
+            <div class="row"><div class="k">Bairro:</div><div class="v">${escapeHtml(p.bairro)}</div></div>
+            <div class="row"><div class="k">Município:</div><div class="v">${escapeHtml(p.municipio)}</div></div>
+            <div class="row"><div class="k">CEP:</div><div class="v">${escapeHtml(p.cep)}</div></div>
+        </div>
+    </div>
+
+    <div class="box">
+        <div class="row"><div class="k">Natureza:</div><div class="v">${escapeHtml(p.natureza)}</div></div>
+        ${p.natureza === 'outros' ? `<div class="row"><div class="k">Descrição (Outros):</div><div class="v">${escapeHtml(p.descricaoOutros)}</div></div>` : ''}
+        <div class="row"><div class="k">Início:</div><div class="v">${escapeHtml(p.inicio)}</div></div>
+        <div class="row"><div class="k">Fim:</div><div class="v">${escapeHtml(p.fim)}</div></div>
+    </div>
+
+    <div class="box">
+        <div class="row"><div class="k">Anexos:</div><div class="v">${anexosHtml}</div></div>
+    </div>
+
+    <div class="muted no-print">Clique em Imprimir e selecione “Salvar como PDF”.</div>
+</body>
+</html>`;
+        }
+
+        function baixarProtocoloAtualPdf() {
+            if (!protocoloDetalheAtual?.id) {
+                alert('Abra um protocolo para baixar o PDF.');
+                return;
+            }
+
+            const html = buildComprovanteHtml(protocoloDetalheAtual);
+            const win = window.open('', '_blank');
+            if (!win) {
+                alert('O navegador bloqueou a janela do comprovante. Permita pop-ups para baixar o PDF.');
+                return;
+            }
+            win.document.open();
+            win.document.write(html);
+            win.document.close();
+        }
+
+        const API = {
+            async request(path, options = {}) {
+                const res = await fetch(path, {
+                    headers: { 'Content-Type': 'application/json', ...(options.headers || {}) },
+                    credentials: 'include',
+                    ...options,
+                });
+                const data = await res.json().catch(() => ({}));
+                if (!res.ok || data.ok === false) {
+                    throw new Error(data.error || `Erro HTTP ${res.status}`);
+                }
+                return data;
+            }
+        };
+
+        function renderUserGreeting(user) {
+            const el = document.querySelector('.profile-name');
+            if (!el) return;
+            const nome = (user && (user.nome || user.email)) ? String(user.nome || user.email) : 'Administrador';
+            el.textContent = `Bem-vindo, ${nome}`;
+        }
+
+        async function ensureAdminSession() {
+            const s = await API.request('/api/session');
+            sessionUser = s.user || null;
+            if (!sessionUser || sessionUser.role !== 'admin') {
+                alert('Sessão inválida. Faça login como Administrador.');
+                window.location.href = 'login-admin.html';
+                return;
+            }
+
+            renderUserGreeting(sessionUser);
+        }
+
+        // --- INICIALIZAÇÃO ---
+        window.onload = function () {
+            (async () => {
+                await ensureAdminSession();
+                await carregarTabelaAdmin();
+            })();
+        }
+
+        // --- NAVEGAÇÃO ---
+        function irParaNovoRequerimento(linkElement) {
+            if (linkElement) {
+                document.querySelectorAll('.menu a').forEach(a => a.classList.remove('active'));
+                linkElement.classList.add('active');
+            }
+            document.getElementById('novoRequerimentoPage').style.display = 'block';
+            document.getElementById('listaProtocolosPage').style.display = 'none';
+            document.getElementById('detalheProtocoloPage').style.display = 'none';
+            protocoloAtualId = null;
+        }
+
+        function irParaLista(linkElement) {
+            pararChatPolling(); // Para o polling do chat
+            if (linkElement) {
+                document.querySelectorAll('.menu a').forEach(a => a.classList.remove('active'));
+                linkElement.classList.add('active');
+            }
+            document.getElementById('novoRequerimentoPage').style.display = 'none';
+            document.getElementById('listaProtocolosPage').style.display = 'block';
+            document.getElementById('detalheProtocoloPage').style.display = 'none';
+            carregarTabelaAdmin(); // Recarrega dados atualizados
+            protocoloAtualId = null;
+        }
+
+        function abrirDetalheAdmin(id) {
+            protocoloAtualId = id;
+            document.getElementById('listaProtocolosPage').style.display = 'none';
+            document.getElementById('detalheProtocoloPage').style.display = 'block';
+            carregarDadosProtocolo(id);
+            
+            // Inicializa o chat para este protocolo
+            inicializarChat(id);
+        }
+
+        // --- LÓGICA DA TABELA E FILTROS ---
+        let serverPaginationAdmin = null;
+        const ITEMS_PER_PAGE = 10;
+
+        async function carregarTabelaAdmin(page = 1) {
+            paginaAtual = page;
+            const termo = document.getElementById('buscaTexto').value.toLowerCase();
+            const statusFiltro = document.getElementById('buscaStatus').value;
+
+            let protocolos = [];
+            try {
+                const r = await API.request(`/api/protocolos?page=${page}&limit=${ITEMS_PER_PAGE}`);
+                protocolos = (r.items || []).map(x => ({ 
+                    id: x.id, 
+                    codigo: x.codigo, 
+                    createdAt: x.createdAt,
+                    ...(x.payload || {}), 
+                    status: x.status || (x.payload?.status) 
+                }));
+                serverPaginationAdmin = r.pagination || null;
+            } catch (e) {
+                alert(e.message);
+                return;
+            }
+
+            const tbody = document.getElementById('tbodyAdmin');
+            tbody.textContent = '';
+
+            // Filtragem local (nos itens da página atual)
+            protocolosFiltrados = protocolos.filter(p => {
+                const codigoTxt = String(p.codigo || '').toLowerCase();
+                const matchTexto = !termo || (
+                    (p.nome || '').toLowerCase().includes(termo) ||
+                    codigoTxt.includes(termo) ||
+                    p.id.toString().includes(termo) ||
+                    (p.cpf && p.cpf.includes(termo))
+                );
+                const matchStatus = statusFiltro ? p.status === statusFiltro : true;
+                return matchTexto && matchStatus;
+            });
+
+            if (protocolosFiltrados.length === 0) {
+                const tr = document.createElement('tr');
+                const td = document.createElement('td');
+                td.colSpan = 6;
+                td.style.textAlign = 'center';
+                td.style.padding = '30px';
+                td.style.color = '#888';
+                td.textContent = 'Nenhum protocolo encontrado.';
+                tr.appendChild(td);
+                tbody.appendChild(tr);
+                document.getElementById('paginationContainer').style.display = 'none';
+                return;
+            }
+
+            // Renderiza os protocolos
+            renderizarProtocolosAdmin(protocolosFiltrados);
+            renderizarPaginacaoServidor();
+        }
+
+        function renderizarProtocolosAdmin(protocolos) {
+            const tbody = document.getElementById('tbodyAdmin');
+            tbody.textContent = '';
+
+            protocolos.forEach(p => {
+                let badgeClass = 'st-enviado';
+                if (p.status === 'Em Análise') badgeClass = 'st-analise';
+                if (p.status === 'Deferido') badgeClass = 'st-deferido';
+                if (p.status === 'Indeferido') badgeClass = 'st-indeferido';
+
+                const tr = document.createElement('tr');
+
+                const tdId = document.createElement('td');
+                tdId.style.fontWeight = 'bold';
+                tdId.style.color = 'var(--primary-color)';
+                tdId.textContent = p.codigo ? String(p.codigo) : `#${p.id}`;
+
+                const tdNome = document.createElement('td');
+                tdNome.textContent = p.nome ?? '';
+
+                const tdNatureza = document.createElement('td');
+                tdNatureza.textContent = p.natureza ?? '';
+
+                const tdData = document.createElement('td');
+                tdData.textContent = p.data ?? '';
+
+                const tdStatus = document.createElement('td');
+                const span = document.createElement('span');
+                span.className = `status-badge ${badgeClass}`;
+                span.textContent = p.status ?? '';
+                tdStatus.appendChild(span);
+
+                const tdAcoes = document.createElement('td');
+                tdAcoes.style.textAlign = 'right';
+                const btn = document.createElement('button');
+                btn.className = 'btn-view';
+                btn.textContent = 'Abrir';
+                btn.addEventListener('click', () => abrirDetalheAdmin(p.id));
+                tdAcoes.appendChild(btn);
+
+                tr.appendChild(tdId);
+                tr.appendChild(tdNome);
+                tr.appendChild(tdNatureza);
+                tr.appendChild(tdData);
+                tr.appendChild(tdStatus);
+                tr.appendChild(tdAcoes);
+                tbody.appendChild(tr);
+            });
+        }
+
+        function renderizarPaginacaoServidor() {
+            const container = document.getElementById('paginationContainer');
+            const botoesContainer = document.getElementById('paginationButtons');
+            const infoEl = document.getElementById('paginationInfo');
+            const btnAnterior = document.getElementById('btnAnterior');
+            const btnProximo = document.getElementById('btnProximo');
+
+            if (!serverPaginationAdmin || serverPaginationAdmin.totalPages <= 1) {
+                container.style.display = 'none';
+                return;
+            }
+
+            container.style.display = 'flex';
+            const { page, total, totalPages, hasPrev, hasNext } = serverPaginationAdmin;
+
+            // Renderiza botões de página
+            botoesContainer.textContent = '';
+            
+            // Limita a quantidade de botões mostrados
+            let startPage = Math.max(1, page - 2);
+            let endPage = Math.min(totalPages, page + 2);
+            
+            if (startPage > 1) {
+                const btn1 = document.createElement('button');
+                btn1.className = 'pagination-btn';
+                btn1.innerText = '1';
+                btn1.onclick = () => carregarTabelaAdmin(1);
+                botoesContainer.appendChild(btn1);
+                
+                if (startPage > 2) {
+                    const dots = document.createElement('span');
+                    dots.textContent = '...';
+                    dots.style.padding = '0 8px';
+                    botoesContainer.appendChild(dots);
+                }
+            }
+            
+            for (let i = startPage; i <= endPage; i++) {
+                const btn = document.createElement('button');
+                btn.className = `pagination-btn ${i === page ? 'active' : ''}`;
+                btn.innerText = i;
+                btn.onclick = () => carregarTabelaAdmin(i);
+                botoesContainer.appendChild(btn);
+            }
+            
+            if (endPage < totalPages) {
+                if (endPage < totalPages - 1) {
+                    const dots = document.createElement('span');
+                    dots.textContent = '...';
+                    dots.style.padding = '0 8px';
+                    botoesContainer.appendChild(dots);
+                }
+                
+                const btnLast = document.createElement('button');
+                btnLast.className = 'pagination-btn';
+                btnLast.innerText = totalPages;
+                btnLast.onclick = () => carregarTabelaAdmin(totalPages);
+                botoesContainer.appendChild(btnLast);
+            }
+
+            // Atualiza informações de paginação
+            const inicio = (page - 1) * ITEMS_PER_PAGE + 1;
+            const fim = Math.min(page * ITEMS_PER_PAGE, total);
+            infoEl.innerText = `Exibindo ${inicio}-${fim} de ${total}`;
+
+            // Ativa/desativa botões anterior e próximo
+            btnAnterior.disabled = !hasPrev;
+            btnProximo.disabled = !hasNext;
+        }
+
+        function irParaPaginaAnterior() {
+            if (serverPaginationAdmin && serverPaginationAdmin.hasPrev) {
+                carregarTabelaAdmin(paginaAtual - 1);
+            }
+        }
+
+        function irParaProximaPagina() {
+            if (serverPaginationAdmin && serverPaginationAdmin.hasNext) {
+                carregarTabelaAdmin(paginaAtual + 1);
+            }
+        }
+
+        function limparFiltros() {
+            document.getElementById('buscaTexto').value = '';
+            document.getElementById('buscaStatus').value = '';
+            carregarTabelaAdmin(1);
+        }
+
+        // --- LÓGICA DE DETALHES ---
+        function carregarDadosProtocolo(id) {
+            API.request(`/api/protocolos/${id}`)
+                .then((r) => {
+                    const p = { id: r.item.id, ...(r.item.payload || {}), status: r.item.status || r.item.payload?.status };
+
+                    protocoloDetalheAtual = {
+                        id: r.item.id,
+                        codigo: r.item.codigo || p.id,
+                        payload: { ...(r.item.payload || {}), status: p.status }
+                    };
+
+                    // Header
+                    document.getElementById('detalheID').innerText = r.item.codigo || p.id;
+                    document.getElementById('detalheRequerente').innerText = p.nome;
+
+                    // Badge Status Atual
+                    let corBadge = '#e3f2fd';
+                    let corTexto = '#1565c0';
+                    if (p.status === 'Deferido') { corBadge = '#e8f5e9'; corTexto = '#2e7d32'; }
+                    if (p.status === 'Indeferido') { corBadge = '#ffebee'; corTexto = '#c62828'; }
+
+                    const badge = document.getElementById('badgeStatusAtual');
+                    badge.textContent = '';
+                    const span = document.createElement('span');
+                    span.style.background = corBadge;
+                    span.style.color = corTexto;
+                    span.style.padding = '6px 12px';
+                    span.style.borderRadius = '15px';
+                    span.style.fontWeight = 'bold';
+                    span.style.fontSize = '12px';
+                    span.style.textTransform = 'uppercase';
+                    span.textContent = p.status ?? '';
+                    badge.appendChild(span);
+
+                    // Select de Status
+                    document.getElementById('novoStatus').value = p.status;
+
+                    // Campos Pessoais
+                    document.getElementById('viewNome').value = p.nome || '-';
+                    document.getElementById('viewCPF').value = p.cpf || '-';
+                    document.getElementById('viewRG').value = p.rg || '-';
+                    document.getElementById('viewNascimento').value = p.nascimento || '-';
+                    document.getElementById('viewLotacao').value = p.lotacao || '-';
+                    document.getElementById('viewCargo').value = p.cargo || '-';
+                    document.getElementById('viewClasse').value = p.classe || '-';
+                    document.getElementById('viewNivel').value = p.nivel || '-';
+                    document.getElementById('viewAdmissao').value = p.admissao || '-';
+                    document.getElementById('viewVinculo').value = p.vinculo || '-';
+                    document.getElementById('viewSituacao').value = p.situacao || '-';
+                    document.getElementById('viewEndereco').value = p.endereco || '-';
+                    document.getElementById('viewBairro').value = p.bairro || '-';
+                    document.getElementById('viewMunicipio').value = p.municipio || '-';
+                    document.getElementById('viewCEP').value = p.cep || '-';
+                    document.getElementById('viewContato').value = p.contato || '-';
+                    document.getElementById('viewEmail').value = p.email || '-';
+
+                    // Campos Solicitação
+                    document.getElementById('viewNatureza').value = p.natureza || '-';
+                    document.getElementById('viewInicio').value = p.inicio || '-';
+                    document.getElementById('viewFim').value = p.fim || '-';
+                    document.getElementById('viewDescricao').value = p.descricaoOutros || '-';
+
+                    if (p.natureza !== 'outros') {
+                        document.getElementById('divDescricaoOutros').style.display = 'none';
+                    } else {
+                        document.getElementById('divDescricaoOutros').style.display = 'block';
+                    }
+
+                    const btnFerias = document.getElementById('btnRequerimentoFerias');
+                    if (btnFerias) {
+                        btnFerias.style.display = isFeriasNatureza(p) ? 'inline-flex' : 'none';
+                    }
+
+                    renderizarTabelasAnexos(p);
+                })
+                .catch((e) => alert(e.message));
+        }
+
+        function renderizarTabelasAnexos(protocolo) {
+            const listaServidor = document.getElementById('listaDocsServidor');
+            const listaSecretaria = document.getElementById('listaDocsSecretaria');
+
+            listaServidor.textContent = '';
+            listaSecretaria.textContent = '';
+
+            const anexos = protocolo.anexos || [];
+
+            // Filtra
+            const docsServ = anexos.filter(a => a.origem === 'Servidor');
+            const docsSec = anexos.filter(a => a.origem === 'Secretaria');
+
+            // Renderiza Servidor
+            if (docsServ.length === 0) {
+                const tr = document.createElement('tr');
+                const td = document.createElement('td');
+                td.colSpan = 3;
+                td.style.color = '#999';
+                td.style.textAlign = 'center';
+                td.textContent = 'Nenhum documento.';
+                tr.appendChild(td);
+                listaServidor.appendChild(tr);
+            }
+            docsServ.forEach(doc => {
+                const tr = document.createElement('tr');
+
+                const tdData = document.createElement('td');
+                tdData.appendChild(document.createTextNode(doc.data ?? ''));
+                const small = document.createElement('small');
+                small.style.color = '#888';
+                small.textContent = doc.hora ? ` ${doc.hora}` : '';
+                tdData.appendChild(small);
+
+                const tdNome = document.createElement('td');
+                tdNome.textContent = doc.nome ?? '';
+
+                const tdAcoes = document.createElement('td');
+                tdAcoes.style.textAlign = 'right';
+
+                const btnVer = document.createElement('button');
+                btnVer.style.cursor = 'pointer';
+                btnVer.style.marginRight = '5px';
+                btnVer.textContent = 'Ver';
+                btnVer.addEventListener('click', () => verPDF(doc.base64));
+
+                const btnExcluir = document.createElement('button');
+                btnExcluir.className = 'btn-sm-danger';
+                btnExcluir.textContent = 'Excluir';
+                btnExcluir.addEventListener('click', () => excluirAnexoAdmin(doc.id));
+
+                tdAcoes.appendChild(btnVer);
+                tdAcoes.appendChild(btnExcluir);
+
+                tr.appendChild(tdData);
+                tr.appendChild(tdNome);
+                tr.appendChild(tdAcoes);
+                listaServidor.appendChild(tr);
+            });
+
+            // Renderiza Secretaria
+            if (docsSec.length === 0) {
+                const tr = document.createElement('tr');
+                const td = document.createElement('td');
+                td.colSpan = 3;
+                td.style.color = '#999';
+                td.style.textAlign = 'center';
+                td.textContent = 'Nenhum documento interno.';
+                tr.appendChild(td);
+                listaSecretaria.appendChild(tr);
+            }
+            docsSec.forEach(doc => {
+                const tr = document.createElement('tr');
+
+                const tdData = document.createElement('td');
+                tdData.appendChild(document.createTextNode(doc.data ?? ''));
+                const small = document.createElement('small');
+                small.style.color = '#888';
+                small.textContent = doc.hora ? ` ${doc.hora}` : '';
+                tdData.appendChild(small);
+
+                const tdNome = document.createElement('td');
+                tdNome.textContent = doc.nome ?? '';
+
+                const tdAcoes = document.createElement('td');
+                tdAcoes.style.textAlign = 'right';
+
+                const btnVer = document.createElement('button');
+                btnVer.style.cursor = 'pointer';
+                btnVer.style.marginRight = '5px';
+                btnVer.textContent = 'Ver';
+                btnVer.addEventListener('click', () => verPDF(doc.base64));
+
+                const btnExcluir = document.createElement('button');
+                btnExcluir.className = 'btn-sm-danger';
+                btnExcluir.textContent = 'Excluir';
+                btnExcluir.addEventListener('click', () => excluirAnexoAdmin(doc.id));
+
+                tdAcoes.appendChild(btnVer);
+                tdAcoes.appendChild(btnExcluir);
+
+                tr.appendChild(tdData);
+                tr.appendChild(tdNome);
+                tr.appendChild(tdAcoes);
+                listaSecretaria.appendChild(tr);
+            });
+        }
+
+        // --- AÇÕES DO ADMINISTRADOR ---
+
+        function atualizarStatus() {
+            if (!protocoloAtualId) return;
+
+            const novoSt = document.getElementById('novoStatus').value;
+            API.request(`/api/protocolos/${protocoloAtualId}/status`, {
+                method: 'PATCH',
+                body: JSON.stringify({ status: novoSt })
+            })
+                .then(() => {
+                    alert("Status atualizado com sucesso!");
+                    carregarDadosProtocolo(protocoloAtualId);
+                })
+                .catch((e) => alert(e.message));
+        }
+
+        // Upload de arquivo pela Secretaria
+        document.getElementById('inputAdminFile').addEventListener('change', async function () {
+            if (this.files.length > 0 && protocoloAtualId) {
+                const file = this.files[0];
+                if (file.size > 3 * 1024 * 1024) { alert("Arquivo muito grande."); return; }
+
+                const base64 = await convertBase64(file);
+                try {
+                    await API.request(`/api/protocolos/${protocoloAtualId}/anexos`, {
+                        method: 'POST',
+                        body: JSON.stringify({ nome: file.name, base64, origem: 'Secretaria' })
+                    });
+                    carregarDadosProtocolo(protocoloAtualId);
+                    alert("Documento anexado pela Secretaria.");
+                } catch (e) {
+                    alert(e.message);
+                }
+                this.value = '';
+            }
+        });
+
+        function excluirAnexoAdmin(anexoId) {
+            if (!confirm("Tem certeza que deseja excluir este anexo? A ação é irreversível.")) return;
+
+            API.request(`/api/protocolos/${protocoloAtualId}/anexos/${anexoId}`, { method: 'DELETE' })
+                .then(() => carregarDadosProtocolo(protocoloAtualId))
+                .catch((e) => alert(e.message));
+        }
+
+        function excluirProtocoloTotal() {
+            const confirmacao = confirm("⚠️ ATENÇÃO!\n\nVocê está prestes a excluir TODO este protocolo e seus documentos.\nIsso não poderá ser desfeito.\n\nDeseja continuar?");
+
+            if (confirmacao) {
+                API.request(`/api/protocolos/${protocoloAtualId}`, { method: 'DELETE' })
+                    .then(() => {
+                        alert("Protocolo excluído com sucesso.");
+                        irParaLista();
+                    })
+                    .catch((e) => alert(e.message));
+            }
+        }
+
+        // Funções Utilitárias
+        const convertBase64 = (file) => {
+            return new Promise((resolve, reject) => {
+                const fileReader = new FileReader();
+                fileReader.readAsDataURL(file);
+                fileReader.onload = () => resolve(fileReader.result);
+                fileReader.onerror = (error) => reject(error);
+            });
+        };
+
+        function verPDF(base64Data) {
+            if (!base64Data) return;
+            const w = window.open();
+            if (!w) return;
+            const iframe = w.document.createElement('iframe');
+            iframe.style.width = '100%';
+            iframe.style.height = '100%';
+            iframe.style.border = '0';
+            iframe.src = String(base64Data);
+            w.document.body.style.margin = '0';
+            w.document.body.appendChild(iframe);
+        }
+
+        // --- FUNÇÕES DO FORMULÁRIO DE NOVO REQUERIMENTO (ADMIN) ---
+        let lastCheckedNaturezaAdmin = null;
+
+        document.addEventListener('DOMContentLoaded', function() {
+            // Evento para "Outros" no formulário do admin
+            const opcaoOutrosAdmin = document.getElementById('opcaoOutrosAdmin');
+            if (opcaoOutrosAdmin) {
+                document.querySelectorAll('input[name="natureza"]').forEach(radio => {
+                    radio.addEventListener('change', function() {
+                        const campoOutros = document.getElementById('campoOutrosAdmin');
+                        if (this.value === 'outros') {
+                            campoOutros.style.display = 'block';
+                        } else {
+                            campoOutros.style.display = 'none';
+                        }
+                    });
+                });
+            }
+        });
+
+        function salvarRequerimentoAdmin(event) {
+            event.preventDefault();
+
+            const form = document.getElementById('requerimentoFormAdmin');
+            const formData = new FormData(form);
+            
+            const protocolo = {
+                nome: formData.get('nome'),
+                cpf: formData.get('cpf'),
+                rg: formData.get('rg'),
+                lotacao: formData.get('lotacao'),
+                cargo: formData.get('cargo'),
+                classe: formData.get('classe'),
+                nivel: formData.get('nivel'),
+                nascimento: formData.get('nascimento'),
+                admissao: formData.get('admissao'),
+                vinculo: formData.get('vinculo'),
+                situacao: formData.get('situacao'),
+                endereco: formData.get('endereco'),
+                bairro: formData.get('bairro'),
+                municipio: formData.get('municipio'),
+                cep: formData.get('cep'),
+                contato: formData.get('contato'),
+                email: formData.get('email'),
+                natureza: formData.get('natureza'),
+                descricaoOutros: formData.get('descricaoOutros'),
+                inicio: formData.get('inicio'),
+                fim: formData.get('fim'),
+                status: 'Enviado',
+                data: new Date().toLocaleDateString('pt-BR'),
+                hora: new Date().toLocaleTimeString('pt-BR'),
+                anexos: []
+            };
+
+            // Se há arquivo anexado
+            const fileInput = document.getElementById('anexoAdmin');
+            if (fileInput.files.length > 0) {
+                const file = fileInput.files[0];
+                if (file.size > 3 * 1024 * 1024) {
+                    alert("Arquivo muito grande. Máximo 3MB.");
+                    return;
+                }
+
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    protocolo.anexos.push({
+                        id: Date.now(),
+                        nome: file.name,
+                        data: new Date().toLocaleDateString('pt-BR'),
+                        hora: new Date().toLocaleTimeString('pt-BR'),
+                        base64: e.target.result,
+                        origem: 'Secretaria'
+                    });
+
+                    API.request('/api/protocolos', {
+                        method: 'POST',
+                        body: JSON.stringify({ payload: protocolo })
+                    })
+                        .then(() => {
+                            alert("Protocolo criado e salvo com sucesso!");
+                            form.reset();
+                            document.getElementById('campoOutrosAdmin').style.display = 'none';
+                            irParaLista();
+                        })
+                        .catch((e) => alert(e.message));
+                };
+                reader.readAsDataURL(file);
+            } else {
+                API.request('/api/protocolos', {
+                    method: 'POST',
+                    body: JSON.stringify({ payload: protocolo })
+                })
+                    .then(() => {
+                        alert("Protocolo criado e salvo com sucesso!");
+                        form.reset();
+                        document.getElementById('campoOutrosAdmin').style.display = 'none';
+                        irParaLista();
+                    })
+                    .catch((e) => alert(e.message));
+            }
+        }
+
+        function limparFormularioAdmin() {
+            document.getElementById('requerimentoFormAdmin').reset();
+            document.getElementById('campoOutrosAdmin').style.display = 'none';
+        }
+
+        // --- FUNÇÕES DO MENU DE PERFIL ---
+        function toggleProfileMenu() {
+            const menu = document.getElementById("profileMenu");
+            menu.classList.toggle("active");
+            
+            // Fechar menu ao clicar fora
+            document.addEventListener('click', function closeMenu(e) {
+                const profileContainer = document.querySelector('.profile-container');
+                if (!profileContainer.contains(e.target)) {
+                    menu.classList.remove("active");
+                    document.removeEventListener('click', closeMenu);
+                }
+            });
+        }
+
+        function abrirPerfil(e) {
+            e.preventDefault();
+            alert("Perfil do Administrador\n\nNome: Administrador da SEMED\nStatus: Online\nCargo: Gestor do Sistema");
+            document.getElementById("profileMenu").classList.remove("active");
+        }
+
+        function logout(e) {
+            e.preventDefault();
+            window.location.href = 'login-admin.html';
+        }
+
+        function toggleSidebar(forceClose = false) {
+            const sidebar = document.querySelector('.sidebar');
+            const overlay = document.querySelector('.sidebar-overlay');
+            if (!sidebar) return;
+            const willOpen = !forceClose && !sidebar.classList.contains('open');
+            sidebar.classList.toggle('open', willOpen);
+            document.body.classList.toggle('sidebar-open', willOpen);
+            if (overlay) overlay.classList.toggle('active', willOpen);
+        }
+
+        // No mobile: fechar o menu ao clicar em um item
+        document.addEventListener('DOMContentLoaded', function () {
+            const sidebarLinks = document.querySelectorAll('.sidebar .menu a');
+            sidebarLinks.forEach(a => {
+                a.addEventListener('click', () => {
+                    if (window.matchMedia('(max-width: 768px)').matches) {
+                        toggleSidebar(true);
+                    }
+                });
+            });
+
+            // Se redimensionar para desktop, fecha
+            window.addEventListener('resize', () => {
+                if (!window.matchMedia('(max-width: 768px)').matches) {
+                    toggleSidebar(true);
+                }
+            });
+        });
+
+        // =========================================
+        // FUNÇÕES DO CHAT
+        // =========================================
+        let chatProtocoloId = null;
+        let chatPollingInterval = null;
+
+        function escapeHtmlChat(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        function formatChatTime(dateStr) {
+            const date = new Date(dateStr);
+            const now = new Date();
+            const isToday = date.toDateString() === now.toDateString();
+            
+            const time = date.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+            
+            if (isToday) {
+                return time;
+            }
+            
+            const dateFormatted = date.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' });
+            return `${dateFormatted} ${time}`;
+        }
+
+        function renderChatMessage(msg, currentRole) {
+            const isSent = msg.senderRole === currentRole;
+            const div = document.createElement('div');
+            div.className = `chat-message ${isSent ? 'sent' : 'received'}`;
+            div.dataset.messageId = msg.id;
+            
+            const senderLabel = isSent ? 'Você' : msg.senderName;
+            
+            div.innerHTML = `
+                <div class="chat-message-sender">${escapeHtmlChat(senderLabel)}</div>
+                <div class="chat-message-text">${escapeHtmlChat(msg.message)}</div>
+                <div class="chat-message-time">${formatChatTime(msg.createdAt)}</div>
+            `;
+            
+            return div;
+        }
+
+        async function carregarMensagensChat() {
+            if (!chatProtocoloId) return;
+            
+            try {
+                const r = await API.request(`/api/protocolos/${chatProtocoloId}/messages`);
+                const messages = r.messages || [];
+                
+                const container = document.getElementById('chatMessages');
+                if (!container) return;
+                
+                // Verifica se precisa atualizar (comparando quantidade)
+                const currentCount = container.querySelectorAll('.chat-message').length;
+                if (currentCount === messages.length && messages.length > 0) {
+                    return; // Sem novas mensagens
+                }
+                
+                container.innerHTML = '';
+                
+                messages.forEach(msg => {
+                    const msgEl = renderChatMessage(msg, 'admin');
+                    container.appendChild(msgEl);
+                });
+                
+                // Scroll para o final
+                container.scrollTop = container.scrollHeight;
+                
+                // Esconde badge de não lidas
+                const badge = document.getElementById('chatUnreadBadge');
+                if (badge) badge.style.display = 'none';
+                
+            } catch (err) {
+                console.error('Erro ao carregar mensagens:', err);
+            }
+        }
+
+        async function enviarMensagemChat() {
+            if (!chatProtocoloId) return;
+            
+            const input = document.getElementById('chatInput');
+            const btn = document.getElementById('chatSendBtn');
+            const message = input?.value?.trim();
+            
+            if (!message) return;
+            
+            btn.disabled = true;
+            
+            try {
+                await API.request(`/api/protocolos/${chatProtocoloId}/messages`, {
+                    method: 'POST',
+                    body: JSON.stringify({ message })
+                });
+                
+                input.value = '';
+                input.style.height = 'auto';
+                
+                // Recarrega mensagens
+                await carregarMensagensChat();
+                
+            } catch (err) {
+                alert(err.message || 'Erro ao enviar mensagem');
+            } finally {
+                btn.disabled = false;
+                input.focus();
+            }
+        }
+
+        function handleChatKeydown(e) {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                enviarMensagemChat();
+            }
+        }
+
+        function iniciarChatPolling() {
+            pararChatPolling();
+            // Atualiza a cada 10 segundos
+            chatPollingInterval = setInterval(carregarMensagensChat, 10000);
+        }
+
+        function pararChatPolling() {
+            if (chatPollingInterval) {
+                clearInterval(chatPollingInterval);
+                chatPollingInterval = null;
+            }
+        }
+
+        function inicializarChat(protocoloId) {
+            chatProtocoloId = protocoloId;
+            
+            // Limpa chat anterior
+            const container = document.getElementById('chatMessages');
+            if (container) container.innerHTML = '<div class="chat-loading">Carregando mensagens...</div>';
+            
+            const input = document.getElementById('chatInput');
+            if (input) input.value = '';
+            
+            // Carrega mensagens e inicia polling
+            carregarMensagensChat();
+            iniciarChatPolling();
+        }
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,1153 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Login Servidor - Protocolo Online</title>
+  <style>
+    :root {
+      --primary: #0a3d62;
+      --border: rgba(0,0,0,0.12);
+    }
+    * { box-sizing: border-box; font-family: Arial, sans-serif; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background: linear-gradient(135deg, #0a3d62, #38ada9);
+      display: flex;
+      justify-content: center;
+      align-items: stretch;
+    }
+
+    .page {
+      width: 100%;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .page-content {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+    .container {
+      width: 100%;
+      max-width: 440px;
+      background: #fff;
+      border-radius: 18px;
+      padding: 26px;
+      box-shadow: 0 12px 26px rgba(0,0,0,0.15);
+      position: relative;
+      overflow: hidden;
+    }
+    .brand { display: flex; justify-content: center; margin-bottom: 10px; }
+    .brand img { height: 100px; max-width: 100%; object-fit: contain; }
+    .brand-text { text-align: center; margin-bottom: 16px; }
+    .brand-title { font-weight: 800; color: var(--primary); font-size: 16px; }
+    .brand-subtitle { color: rgba(0,0,0,0.55); font-size: 13px; margin-top: 4px; }
+
+    /* Quando estiver no modo registro, o título do topo vira o “título da tela”
+       e precisa ficar com o mesmo tamanho do h2 (padrão do navegador). */
+    .brand-title.is-form-title {
+      font-size: 1.5em;
+      font-weight: bold;
+      margin: 8px 0 6px;
+    }
+
+    h2 { margin: 8px 0 6px; color: var(--primary); text-align: center; }
+    .form-subtitle { font-size: 13px; color: rgba(0,0,0,0.6); margin-bottom: 14px; text-align: center; }
+
+    .form { display: none; }
+    .form.active { display: block; }
+
+    .form-error {
+      display: none;
+      margin: 10px 0;
+      padding: 10px 12px;
+      border-radius: 12px;
+      background: rgba(255,0,0,0.06);
+      color: #b30000;
+      border: 1px solid rgba(255,0,0,0.18);
+      font-size: 14px;
+    }
+    .form-error.active { display: block; }
+
+    .field { position: relative; margin-top: 12px; }
+    .field input,
+    .field select {
+      width: 100%;
+      padding: 18px 12px 10px;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      outline: none;
+      font-size: 15px;
+      background: #fff;
+    }
+    .field input::placeholder { color: transparent; }
+    .field select { padding-right: 12px; }
+
+    .field label {
+      position: absolute;
+      left: 12px;
+      top: 18px;
+      transform: none;
+      color: rgba(10, 61, 98, 0.75);
+      background: transparent;
+      padding: 0 4px;
+      font-size: 15px;
+      line-height: 1;
+      pointer-events: none;
+      transition: all 0.15s ease;
+    }
+
+    .field input:focus + label,
+    .field input:not(:placeholder-shown) + label,
+    .field select:focus + label,
+    .field select:required:valid + label {
+      top: 0;
+      transform: translateY(-50%);
+      font-size: 12px;
+      color: var(--primary);
+      background: #ffffff;
+      color: var(--primary);
+    }
+
+    /* Compatibilidade melhor com autofill */
+    .field input:-webkit-autofill + label {
+      top: 0;
+      transform: translateY(-50%);
+      font-size: 12px;
+      color: var(--primary);
+      background: #ffffff;
+    }
+
+    /* Só nos campos com ícone de olho: mantém espaço do botão */
+    .password-field.field input { padding-right: 42px; }
+
+    .field.invalid input,
+    .field.invalid select {
+      border-color: rgba(255,0,0,0.5);
+      background: rgba(255,0,0,0.03);
+    }
+
+    .field-error { font-size: 12px; color: #b30000; margin: 6px 2px 0; min-height: 14px; }
+
+    .password-field .toggle-password {
+      position: absolute;
+      right: 10px;
+      top: 50%;
+      transform: translateY(-50%);
+      cursor: pointer;
+      width: 26px;
+      height: 26px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0.7;
+    }
+    /* Alinha com a linha de digitação (label flutuante aumenta o padding-top) */
+    .password-field .toggle-password { top: 28px; }
+    .password-field .toggle-password:hover { opacity: 1; }
+    .password-field svg { width: 22px; height: 22px; fill: var(--primary); }
+
+    .btn {
+      width: 100%;
+      margin-top: 14px;
+      padding: 12px 14px;
+      border-radius: 12px;
+      border: 1px solid transparent;
+      font-weight: 700;
+      font-size: 15px;
+      cursor: pointer;
+    }
+    .btn-primary { background: var(--primary); color: #fff; }
+    .btn-primary:hover { filter: brightness(1.02); }
+
+    .btn-secondary {
+      background: #ffffff;
+      color: var(--primary);
+      border-color: var(--border);
+    }
+    .btn-secondary:hover {
+      background: rgba(10, 61, 98, 0.06);
+      border-color: rgba(10, 61, 98, 0.35);
+    }
+
+    .link { text-align: center; margin-top: 12px; cursor: pointer; color: #1e3799; font-size: 14px; }
+
+    .support-info {
+      text-align: center;
+      margin-top: 18px;
+      padding-top: 14px;
+      border-top: 1px solid var(--border);
+      font-size: 12px;
+      color: rgba(0,0,0,0.6);
+    }
+    .support-info a {
+      color: var(--primary);
+      font-weight: 600;
+      text-decoration: none;
+    }
+    .support-info a:hover {
+      text-decoration: underline;
+    }
+
+    .page-footer {
+      padding: 16px 32px;
+      font-size: 12px;
+      color: rgba(255,255,255,0.95);
+      line-height: 1.5;
+      backdrop-filter: blur(8px);
+      background: linear-gradient(180deg, rgba(10,61,98,0.95), rgba(10,61,98,0.98));
+      border-top: 1px solid rgba(255,255,255,0.15);
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      justify-content: space-between;
+      gap: 20px;
+      width: 100%;
+      box-sizing: border-box;
+    }
+
+    .footer-main {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 6px;
+      text-align: left;
+    }
+
+    .footer-copyright {
+      font-size: 12px;
+      font-weight: 600;
+      color: #ffffff;
+      letter-spacing: 0.2px;
+    }
+
+    .footer-terms {
+      font-size: 11px;
+      color: rgba(255,255,255,0.85);
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      flex-wrap: wrap;
+      justify-content: flex-start;
+    }
+
+    .footer-terms a {
+      color: #38ada9;
+      font-weight: 600;
+      text-decoration: none;
+      transition: color 0.2s;
+    }
+
+    .footer-terms a:hover {
+      color: #5dd5cf;
+      text-decoration: underline;
+    }
+
+    .footer-dev {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-shrink: 0;
+    }
+
+    .footer-dev-text {
+      font-size: 11px;
+      color: rgba(255,255,255,0.7);
+    }
+
+    .footer-dev-logo {
+      height: 64px;
+      width: auto;
+      object-fit: contain;
+      filter: brightness(1.1);
+      transition: transform 0.2s;
+    }
+
+    .footer-dev-logo:hover {
+      transform: scale(1.05);
+    }
+
+    @media (max-width: 640px) {
+      .page-footer { 
+        padding: 14px 16px; 
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 12px;
+      }
+      .footer-copyright { font-size: 11px; }
+      .footer-terms { font-size: 10px; }
+      .footer-dev { align-self: flex-end; }
+      
+      .container {
+        max-width: 100%;
+        margin: 0 10px;
+        border-radius: 14px;
+      }
+      
+      .brand img {
+        height: 80px;
+      }
+      
+      .brand-title {
+        font-size: 14px;
+      }
+      
+      .brand-subtitle {
+        font-size: 12px;
+      }
+    }
+
+    .wizard-steps { margin: -6px 0 10px; text-align: center; font-size: 12px; color: rgba(0,0,0,0.55); }
+    .wizard-step { display: none; }
+    .wizard-step.active { display: block; }
+    .btn-row { display: flex; gap: 10px; margin-top: 10px; }
+    .btn-row .btn { width: 100%; margin-top: 0; }
+
+    @media (max-width: 480px) {
+      .page-content {
+        padding: 15px 10px;
+      }
+      
+      .container { 
+        padding: 20px 18px; 
+        border-radius: 12px;
+        margin: 0 5px;
+      }
+      
+      .brand img {
+        height: 70px;
+      }
+      
+      .brand-title {
+        font-size: 13px;
+      }
+      
+      h2 {
+        font-size: 1.2em;
+      }
+      
+      .field input,
+      .field select {
+        padding: 16px 12px 8px;
+        font-size: 14px;
+      }
+      
+      .field label {
+        font-size: 13px;
+      }
+      
+      button { 
+        font-size: 14px;
+        padding: 14px;
+      }
+      
+      .btn-row {
+        flex-direction: column;
+      }
+      
+      .form-subtitle {
+        font-size: 12px;
+      }
+    }
+    
+    @media (max-width: 360px) {
+      .container {
+        padding: 18px 15px;
+      }
+      
+      .brand img {
+        height: 60px;
+      }
+      
+      .field input,
+      .field select {
+        padding: 14px 10px 6px;
+        font-size: 13px;
+      }
+    }
+
+    /* Modal de Termos/Privacidade */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.6);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      z-index: 9999;
+    }
+    .modal-overlay.active { display: flex; }
+    .modal {
+      background: #fff;
+      border-radius: 16px;
+      max-width: 720px;
+      width: 100%;
+      max-height: 85vh;
+      overflow: auto;
+      box-shadow: 0 16px 48px rgba(0,0,0,0.25);
+      padding: 24px;
+    }
+    .modal header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 16px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid rgba(0,0,0,0.1);
+    }
+    .modal h3 { margin: 0; color: var(--primary); font-size: 18px; font-weight: 700; }
+    .modal .close-btn {
+      background: var(--primary);
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      padding: 8px 16px;
+      cursor: pointer;
+      font-weight: 600;
+      font-size: 13px;
+      transition: background 0.2s;
+    }
+    .modal .close-btn:hover { background: #082d49; }
+    .modal .terms-list { margin: 0; padding-left: 20px; color: rgba(0,0,0,0.8); font-size: 14px; line-height: 1.7; }
+    .modal .terms-list li { margin: 10px 0; }
+    .modal p { color: rgba(0,0,0,0.75); font-size: 14px; line-height: 1.6; margin: 0 0 12px; }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <div class="page-content">
+      <div class="container">
+        <div class="brand">
+          <img src="/assets/logo_sec.png" alt="Secretaria de Educação" />
+        </div>
+        <div class="brand-text">
+          <div class="brand-title">Sistema de Protocolos – SEMED</div>
+          <div class="brand-subtitle">Secretaria de Educação</div>
+        </div>
+
+        <div class="form active" id="servidor">
+          <h2>Login Servidor</h2>
+          <div class="form-subtitle">Acesse com seu e-mail cadastrado.</div>
+
+          <div class="form-error" id="formErrorServidor" role="status" aria-live="polite"></div>
+
+          <div class="field">
+            <input type="email" id="emailServidor" placeholder=" " autocomplete="username" inputmode="email" />
+            <label for="emailServidor">E-mail</label>
+            <div class="field-error" data-for="emailServidor"></div>
+          </div>
+
+          <div class="password-field field">
+            <input type="password" id="senhaServidor" placeholder=" " autocomplete="current-password" />
+            <label for="senhaServidor">Senha</label>
+            <div class="field-error" data-for="senhaServidor"></div>
+            <span class="toggle-password" onclick="toggleSenha('senhaServidor', this)">
+              <svg viewBox="0 0 24 24"><path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/></svg>
+            </span>
+          </div>
+
+          <button class="btn btn-primary" onclick="loginServidor(this)">Entrar</button>
+          <div class="link" onclick="showForm('recuperar')">Esqueceu a senha?</div>
+          <div class="link" onclick="startRegistroWizard()">Registrar-se</div>
+          <div class="link" onclick="window.location.href='login-admin.html'">Sou do Administrativo</div>
+
+          <div class="support-info">
+            Problemas ou sugestões? Entre em contato:<br>
+            <a href="mailto:ezojtech@gmail.com">ezojtech@gmail.com</a>
+          </div>
+        </div>
+
+        <div class="form" id="registro">
+          <div class="form-subtitle">Preencha etapa por etapa e avance até concluir.</div>
+
+          <div class="wizard-steps" id="wizardStepsText">Etapa 1 de 4</div>
+          <div class="form-error" id="formErrorRegistro" role="status" aria-live="polite"></div>
+
+          <div class="wizard-step" data-step="0">
+            <div class="field">
+              <input type="text" id="regNome" placeholder=" " autocomplete="name" />
+              <label for="regNome">Nome Completo</label>
+              <div class="field-error" data-for="regNome"></div>
+            </div>
+            <div class="field">
+              <input type="text" id="regCpf" placeholder=" " inputmode="numeric" autocomplete="off" maxlength="14" />
+              <label for="regCpf">CPF</label>
+              <div class="field-error" data-for="regCpf"></div>
+            </div>
+            <div class="field">
+              <input type="text" id="regRg" placeholder=" " />
+              <label for="regRg">RG</label>
+              <div class="field-error" data-for="regRg"></div>
+            </div>
+            <div class="field">
+              <input type="date" id="regNascimento" placeholder=" " />
+              <label for="regNascimento">Data de Nascimento</label>
+              <div class="field-error" data-for="regNascimento"></div>
+            </div>
+            <div class="field">
+              <select id="regCargo" required>
+                <option value="" selected disabled></option>
+                <option value="Professor efetivo">Professor efetivo</option>
+                <option value="Auxiliar de Serviços gerais">Auxiliar de Serviços gerais</option>
+                <option value="Professor temporário">Professor temporário</option>
+                <option value="Auxiliar técnico pedagógico">Auxiliar técnico pedagógico</option>
+                <option value="Vigia">Vigia</option>
+                <option value="Cargo comissionado">Cargo comissionado</option>
+                <option value="Outros">Outros</option>
+              </select>
+              <label for="regCargo">Cargo/Função</label>
+              <div class="field-error" data-for="regCargo"></div>
+            </div>
+            <div class="field" id="regCargoOutroField" style="display:none;">
+              <input type="text" id="regCargoOutro" placeholder=" " />
+              <label for="regCargoOutro">Qual cargo (Outros)?</label>
+              <div class="field-error" data-for="regCargoOutro"></div>
+            </div>
+          </div>
+
+          <div class="wizard-step" data-step="1">
+            <div class="password-field field">
+              <input type="text" id="regLotacao" placeholder=" " />
+              <label for="regLotacao">Local de trabalho</label>
+              <div class="field-error" data-for="regLotacao"></div>
+            </div>
+            <div class="field">
+              <select id="regVinculo" required>
+                <option value="" selected disabled></option>
+                <option value="Estatutario">Estatutário</option>
+                <option value="Outros">Outros</option>
+              </select>
+              <label for="regVinculo">Vínculo Empregatício</label>
+              <div class="field-error" data-for="regVinculo"></div>
+            </div>
+            <div class="field">
+              <select id="regSituacao" required>
+                <option value="" selected disabled></option>
+                <option value="Efetivo">Efetivo</option>
+                <option value="Prestador">Prestador de Serviço</option>
+                <option value="Temporario">Professor Temporário</option>
+                <option value="Comissionado">Cargo Comissionado</option>
+              </select>
+              <label for="regSituacao">Situação Funcional</label>
+              <div class="field-error" data-for="regSituacao"></div>
+            </div>
+            <div class="field">
+              <input type="date" id="regAdmissao" placeholder=" " />
+              <label for="regAdmissao">Data de Admissão</label>
+              <div class="field-error" data-for="regAdmissao"></div>
+            </div>
+
+            <div id="professorEfetivoFields" style="display:none;">
+              <div class="field">
+                <input type="text" id="regClasse" placeholder=" " />
+                <label for="regClasse">Classe</label>
+                <div class="field-error" data-for="regClasse"></div>
+              </div>
+              <div class="field">
+                <input type="text" id="regNivel" placeholder=" " />
+                <label for="regNivel">Nível</label>
+                <div class="field-error" data-for="regNivel"></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="wizard-step" data-step="2">
+            <div class="field">
+              <input type="text" id="regEndereco" placeholder=" " />
+              <label for="regEndereco">Endereço</label>
+              <div class="field-error" data-for="regEndereco"></div>
+            </div>
+            <div class="field">
+              <input type="text" id="regBairro" placeholder=" " />
+              <label for="regBairro">Bairro</label>
+              <div class="field-error" data-for="regBairro"></div>
+            </div>
+            <div class="field">
+              <input type="text" id="regMunicipio" placeholder=" " value="Demerval Lobão" />
+              <label for="regMunicipio">Município</label>
+              <div class="field-error" data-for="regMunicipio"></div>
+            </div>
+            <div class="field">
+              <input type="text" id="regEstado" placeholder=" " />
+              <label for="regEstado">Estado</label>
+              <div class="field-error" data-for="regEstado"></div>
+            </div>
+            <div class="field">
+              <input type="text" id="regCep" placeholder=" " />
+              <label for="regCep">CEP</label>
+              <div class="field-error" data-for="regCep"></div>
+            </div>
+            <div class="field">
+              <input type="text" id="regContato" placeholder=" " />
+              <label for="regContato">Telefone/Contato</label>
+              <div class="field-error" data-for="regContato"></div>
+            </div>
+          </div>
+
+          <div class="wizard-step" data-step="3">
+            <div class="field">
+              <input type="email" id="regEmail" placeholder=" " autocomplete="email" inputmode="email" />
+              <label for="regEmail">E-mail</label>
+              <div class="field-error" data-for="regEmail"></div>
+            </div>
+
+            <div class="password-field field">
+              <input type="password" id="regSenha" placeholder=" " autocomplete="new-password" />
+              <label for="regSenha">Senha</label>
+              <div class="field-error" data-for="regSenha"></div>
+              <span class="toggle-password" onclick="toggleSenha('regSenha', this)">
+                <svg viewBox="0 0 24 24"><path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/></svg>
+              </span>
+            </div>
+
+            <div class="password-field field">
+              <input type="password" id="regSenha2" placeholder=" " autocomplete="new-password" />
+              <label for="regSenha2">Confirmar Senha</label>
+              <div class="field-error" data-for="regSenha2"></div>
+              <span class="toggle-password" onclick="toggleSenha('regSenha2', this)">
+                <svg viewBox="0 0 24 24"><path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5-1.4 0-2.74.25-4.01.7l2.16 2.16C10.74 7.13 11.35 7 12 7zM2 4.27l2.28 2.28.46.46A11.804 11.804 0 0 0 1 12c1.73 4.39 6 7.5 11 7.5 1.55 0 3.03-.3 4.38-.84l.42.42L19.73 22 21 20.73 3.27 3 2 4.27zM7.53 9.8l1.55 1.55c-.05.21-.08.43-.08.65 0 1.66 1.34 3 3 3 .22 0 .44-.03.65-.08l1.55 1.55c-.67.33-1.41.53-2.2.53-2.76 0-5-2.24-5-5 0-.79.2-1.53.53-2.2zm4.31-.78l3.15 3.15.02-.16c0-1.66-1.34-3-3-3l-.17.01z"/></svg>
+              </span>
+            </div>
+          </div>
+
+          <div class="btn-row">
+            <button class="btn btn-secondary" type="button" id="btnRegBack" onclick="registroBack()">Voltar</button>
+            <button class="btn btn-primary" type="button" id="btnRegNext" onclick="registroNext()">Avançar</button>
+          </div>
+          <div class="link" onclick="cancelRegistroWizard()">Cancelar e voltar ao login</div>
+        </div>
+
+        <div class="form" id="recuperar">
+          <h2>Recuperar Senha</h2>
+          <div class="form-subtitle">Informe seu e-mail para receber o código.</div>
+
+          <div class="form-error" id="formErrorRecuperar" role="status" aria-live="polite"></div>
+          <div class="field">
+            <input type="email" id="recEmail" placeholder=" " autocomplete="email" inputmode="email" />
+            <label for="recEmail">Digite seu e-mail</label>
+            <div class="field-error" data-for="recEmail"></div>
+          </div>
+          <button class="btn btn-primary" onclick="enviarCodigo(this)">Enviar Código</button>
+          <div class="link" onclick="showForm('servidor')">Voltar</div>
+        </div>
+      </div>
+    </div>
+
+    <footer class="page-footer">
+      <div class="footer-main">
+        <div class="footer-copyright">
+          © Copyright 2026 - SECRETARIA MUNICIPAL DE EDUCAÇÃO DE DEMERVAL LOBÃO - SEMED<br>
+          Todos os direitos reservados
+        </div>
+        <div class="footer-terms">
+          <span>Ao acessar, declaro que li e aceito os</span>
+          <a href="#" onclick="openTermsModal(); return false;">Termos de Uso</a>
+          <span>e a</span>
+          <a href="#" onclick="openPrivacyModal(); return false;">Política de Privacidade</a>
+        </div>
+      </div>
+      <div class="footer-dev">
+        <span class="footer-dev-text">Desenvolvido por</span>
+        <a href="https://ezojtech.com" target="_blank" rel="noopener noreferrer">
+          <img src="/assets/ezojtech.png" alt="EzojTech" class="footer-dev-logo" />
+        </a>
+      </div>
+    </footer>
+  </div>
+
+  <script>
+    // Importante: sessão/cookies só funcionam quando esta página é servida pelo backend.
+    if (window.location.protocol === 'file:') {
+      alert('Abra pelo servidor: http://localhost:3000/');
+    }
+
+    const API = {
+      async request(path, options = {}) {
+        const res = await fetch(path, {
+          headers: { 'Content-Type': 'application/json', ...(options.headers || {}) },
+          credentials: 'include',
+          ...options,
+        });
+        const data = await res.json().catch(() => ({}));
+        if (!res.ok || data.ok === false) {
+          throw new Error(data.error || `Erro HTTP ${res.status}`);
+        }
+        return data;
+      }
+    };
+
+    function toggleSenha(id, el) {
+      const input = document.getElementById(id);
+      const iconShow = '<svg viewBox="0 0 24 24"><path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/></svg>';
+      const iconHide = '<svg viewBox="0 0 24 24"><path d="M12 7c2.76 0 5 2.24 5 5 0 .65-.13 1.26-.36 1.83l2.92 2.92c1.51-1.26 2.7-2.89 3.43-4.75-1.73-4.39-6-7.5-11-7.5-1.4 0-2.74.25-4.01.7l2.16 2.16C10.74 7.13 11.35 7 12 7zM2 4.27l2.28 2.28.46.46A11.804 11.804 0 0 0 1 12c1.73 4.39 6 7.5 11 7.5 1.55 0 3.03-.3 4.38-.84l.42.42L19.73 22 21 20.73 3.27 3 2 4.27zM7.53 9.8l1.55 1.55c-.05.21-.08.43-.08.65 0 1.66 1.34 3 3 3 .22 0 .44-.03.65-.08l1.55 1.55c-.67.33-1.41.53-2.2.53-2.76 0-5-2.24-5-5 0-.79.2-1.53.53-2.2zm4.31-.78l3.15 3.15.02-.16c0-1.66-1.34-3-3-3l-.17.01z"/></svg>';
+
+      if (input.type === 'password') {
+        input.type = 'text';
+        el.innerHTML = iconHide;
+      } else {
+        input.type = 'password';
+        el.innerHTML = iconShow;
+      }
+    }
+
+    function setButtonLoading(btn, isLoading, loadingText = 'Carregando...') {
+      if (!btn) return;
+      if (isLoading) {
+        btn.dataset.originalText = btn.dataset.originalText || btn.textContent;
+        btn.textContent = loadingText;
+        btn.disabled = true;
+      } else {
+        btn.textContent = btn.dataset.originalText || btn.textContent;
+        btn.disabled = false;
+      }
+    }
+
+    function setFieldError(inputId, message) {
+      const input = document.getElementById(inputId);
+      if (!input) return;
+      const field = input.closest('.field');
+      if (!field) return;
+
+      const err = field.querySelector(`.field-error[data-for="${CSS.escape(inputId)}"]`);
+      field.classList.add('invalid');
+      input.setAttribute('aria-invalid', 'true');
+      if (err) err.textContent = message || '';
+    }
+
+    function clearFieldError(inputId) {
+      const input = document.getElementById(inputId);
+      if (!input) return;
+      const field = input.closest('.field');
+      if (!field) return;
+      const err = field.querySelector(`.field-error[data-for="${CSS.escape(inputId)}"]`);
+      field.classList.remove('invalid');
+      input.removeAttribute('aria-invalid');
+      if (err) err.textContent = '';
+    }
+
+    function setFormError(formId, message) {
+      const map = {
+        servidor: 'formErrorServidor',
+        registro: 'formErrorRegistro',
+        recuperar: 'formErrorRecuperar',
+      };
+      const el = document.getElementById(map[formId] || '');
+      if (!el) return;
+      if (message) {
+        el.textContent = message;
+        el.classList.add('active');
+      } else {
+        el.textContent = '';
+        el.classList.remove('active');
+      }
+    }
+
+    function clearFormError(formId) {
+      setFormError(formId, '');
+    }
+
+    document.querySelectorAll('.field input, .field select').forEach((input) => {
+      input.addEventListener('input', () => clearFieldError(input.id));
+      input.addEventListener('change', () => clearFieldError(input.id));
+    });
+
+    function formatCPF(value) {
+      const digits = String(value || '').replace(/\D/g, '').slice(0, 11);
+      const a = digits.slice(0, 3);
+      const b = digits.slice(3, 6);
+      const c = digits.slice(6, 9);
+      const d = digits.slice(9, 11);
+
+      if (digits.length <= 3) return a;
+      if (digits.length <= 6) return `${a}.${b}`;
+      if (digits.length <= 9) return `${a}.${b}.${c}`;
+      return `${a}.${b}.${c}-${d}`;
+    }
+
+    function attachCpfMask(inputId) {
+      const input = document.getElementById(inputId);
+      if (!input) return;
+
+      const apply = () => {
+        const formatted = formatCPF(input.value);
+        input.value = formatted;
+      };
+
+      input.addEventListener('input', apply);
+      input.addEventListener('blur', apply);
+      // Inicializa caso a tela volte com valor já preenchido
+      apply();
+    }
+
+    function showForm(form) {
+      document.querySelectorAll('.form').forEach((f) => f.classList.remove('active'));
+      document.getElementById(form).classList.add('active');
+
+      syncBrandForForm(form);
+
+      clearFormError(form);
+      document.getElementById(form).querySelectorAll('.field input, .field select').forEach((el) => clearFieldError(el.id));
+    }
+
+    const brandLogoEl = document.querySelector('.brand');
+    const brandTitleEl = document.querySelector('.brand-title');
+    const brandSubtitleEl = document.querySelector('.brand-subtitle');
+    const brandOriginalTitle = brandTitleEl ? brandTitleEl.textContent : '';
+    const brandOriginalSubtitle = brandSubtitleEl ? brandSubtitleEl.textContent : '';
+
+    function syncBrandForForm(form) {
+      const isRegistro = form === 'registro';
+
+      if (brandLogoEl) brandLogoEl.style.display = isRegistro ? 'none' : 'flex';
+
+      if (brandTitleEl) {
+        brandTitleEl.classList.toggle('is-form-title', isRegistro);
+        brandTitleEl.textContent = isRegistro ? 'Registrar Servidor' : brandOriginalTitle;
+      }
+
+      if (brandSubtitleEl) {
+        brandSubtitleEl.style.display = isRegistro ? 'none' : 'block';
+        if (!isRegistro && brandOriginalSubtitle) brandSubtitleEl.textContent = brandOriginalSubtitle;
+      }
+    }
+
+    let registroStep = 0;
+    const REG_TOTAL_STEPS = 4;
+
+    function getCargoValue() {
+      const cargoSelect = document.getElementById('regCargo');
+      const other = document.getElementById('regCargoOutro');
+      const selected = String(cargoSelect?.value || '').trim();
+      if (selected === 'Outros') return String(other?.value || '').trim();
+      return selected;
+    }
+
+    function syncCargoDependentFields() {
+      const cargoSelect = document.getElementById('regCargo');
+      const otherField = document.getElementById('regCargoOutroField');
+      const otherInput = document.getElementById('regCargoOutro');
+      const professorBox = document.getElementById('professorEfetivoFields');
+      const selected = String(cargoSelect?.value || '').trim();
+
+      const isOutros = selected === 'Outros';
+      if (otherField) otherField.style.display = isOutros ? 'block' : 'none';
+      if (!isOutros && otherInput) {
+        otherInput.value = '';
+        clearFieldError('regCargoOutro');
+      }
+
+      const isProfessorEfetivo = selected === 'Professor efetivo';
+      if (professorBox) professorBox.style.display = isProfessorEfetivo ? 'block' : 'none';
+      if (!isProfessorEfetivo) {
+        const classe = document.getElementById('regClasse');
+        const nivel = document.getElementById('regNivel');
+        if (classe) classe.value = '';
+        if (nivel) nivel.value = '';
+        clearFieldError('regClasse');
+        clearFieldError('regNivel');
+      }
+    }
+
+    function startRegistroWizard() {
+      // Redireciona para o novo formulário de cadastro do cidadão.
+      window.location.href = 'cadastro-cidadao.html';
+    }
+
+    function cancelRegistroWizard() {
+      showForm('servidor');
+    }
+
+    function registroSetStep(step) {
+      registroStep = Math.max(0, Math.min(REG_TOTAL_STEPS - 1, Number(step) || 0));
+
+      const stepsText = document.getElementById('wizardStepsText');
+      if (stepsText) stepsText.textContent = `Etapa ${registroStep + 1} de ${REG_TOTAL_STEPS}`;
+
+      document.querySelectorAll('#registro .wizard-step').forEach((el) => {
+        const s = Number(el.getAttribute('data-step'));
+        el.classList.toggle('active', s === registroStep);
+      });
+
+      const btnBack = document.getElementById('btnRegBack');
+      const btnNext = document.getElementById('btnRegNext');
+
+      if (btnBack) btnBack.disabled = false;
+      if (btnNext) btnNext.textContent = registroStep === (REG_TOTAL_STEPS - 1) ? 'Concluir' : 'Avançar';
+
+      clearFormError('registro');
+
+      // Garante que campos condicionais estejam coerentes ao navegar.
+      syncCargoDependentFields();
+    }
+
+    function registroValidateStep(step) {
+      clearFormError('registro');
+
+      const s = Number(step);
+      const clearMany = (ids) => ids.forEach((id) => clearFieldError(id));
+      const req = (id, msg) => {
+        const el = document.getElementById(id);
+        const v = (el && 'value' in el) ? String(el.value || '').trim() : '';
+        if (!v) {
+          setFieldError(id, msg);
+          return false;
+        }
+        return true;
+      };
+
+      if (s === 0) {
+        const ids = ['regNome', 'regCpf', 'regRg', 'regNascimento', 'regCargo', 'regCargoOutro'];
+        clearMany(ids);
+        let ok = true;
+        ok = req('regNome', 'Informe seu nome.') && ok;
+        ok = req('regCpf', 'Informe seu CPF.') && ok;
+        ok = req('regRg', 'Informe seu RG.') && ok;
+        ok = req('regNascimento', 'Informe sua data de nascimento.') && ok;
+        ok = req('regCargo', 'Selecione seu cargo/função.') && ok;
+
+        const cargoSel = String(document.getElementById('regCargo')?.value || '').trim();
+        if (cargoSel === 'Outros') {
+          ok = req('regCargoOutro', 'Informe qual é o cargo (Outros).') && ok;
+        }
+        return ok;
+      }
+
+      if (s === 1) {
+        const ids = ['regLotacao', 'regVinculo', 'regSituacao', 'regAdmissao', 'regClasse', 'regNivel'];
+        clearMany(ids);
+        let ok = true;
+        ok = req('regLotacao', 'Informe o local de trabalho.') && ok;
+        ok = req('regVinculo', 'Selecione o vínculo.') && ok;
+        ok = req('regSituacao', 'Selecione a situação.') && ok;
+        ok = req('regAdmissao', 'Informe a data de admissão.') && ok;
+
+        const cargoSel = String(document.getElementById('regCargo')?.value || '').trim();
+        if (cargoSel === 'Professor efetivo') {
+          ok = req('regClasse', 'Informe a classe.') && ok;
+          ok = req('regNivel', 'Informe o nível.') && ok;
+        }
+        return ok;
+      }
+
+      if (s === 2) {
+        const ids = ['regEndereco', 'regBairro', 'regMunicipio', 'regEstado', 'regCep', 'regContato'];
+        clearMany(ids);
+        let ok = true;
+        ok = req('regEndereco', 'Informe o endereço.') && ok;
+        ok = req('regBairro', 'Informe o bairro.') && ok;
+        ok = req('regMunicipio', 'Informe o município.') && ok;
+        ok = req('regEstado', 'Informe o estado.') && ok;
+        ok = req('regCep', 'Informe o CEP.') && ok;
+        ok = req('regContato', 'Informe um telefone/contato.') && ok;
+        return ok;
+      }
+
+      if (s === 3) {
+        const ids = ['regEmail', 'regSenha', 'regSenha2'];
+        clearMany(ids);
+        let ok = true;
+        ok = req('regEmail', 'Informe seu e-mail.') && ok;
+        ok = req('regSenha', 'Informe uma senha.') && ok;
+        ok = req('regSenha2', 'Confirme a senha.') && ok;
+        const senha = String(document.getElementById('regSenha')?.value || '');
+        const senha2 = String(document.getElementById('regSenha2')?.value || '');
+        if (senha && senha2 && senha !== senha2) {
+          setFieldError('regSenha2', 'As senhas não conferem.');
+          ok = false;
+        }
+        return ok;
+      }
+
+      return true;
+    }
+
+    function registroBack() {
+      if (registroStep <= 0) {
+        cancelRegistroWizard();
+        return;
+      }
+      registroSetStep(registroStep - 1);
+    }
+
+    async function registroNext() {
+      if (!registroValidateStep(registroStep)) return;
+
+      if (registroStep < REG_TOTAL_STEPS - 1) {
+        registroSetStep(registroStep + 1);
+        return;
+      }
+
+      const btn = document.getElementById('btnRegNext');
+      setButtonLoading(btn, true, 'Registrando...');
+
+      const nome = String(document.getElementById('regNome')?.value || '').trim();
+      const cargo = getCargoValue();
+      const email = String(document.getElementById('regEmail')?.value || '').trim();
+      const senha = String(document.getElementById('regSenha')?.value || '');
+
+      const profile = {
+        nascimento: document.getElementById('regNascimento')?.value || null,
+        cpf: document.getElementById('regCpf')?.value || null,
+        rg: document.getElementById('regRg')?.value || null,
+        lotacao: document.getElementById('regLotacao')?.value || null,
+        classe: document.getElementById('regClasse')?.value || null,
+        nivel: document.getElementById('regNivel')?.value || null,
+        admissao: document.getElementById('regAdmissao')?.value || null,
+        vinculo: document.getElementById('regVinculo')?.value || null,
+        situacao: document.getElementById('regSituacao')?.value || null,
+        endereco: document.getElementById('regEndereco')?.value || null,
+        bairro: document.getElementById('regBairro')?.value || null,
+        municipio: document.getElementById('regMunicipio')?.value || null,
+        estado: document.getElementById('regEstado')?.value || null,
+        cep: document.getElementById('regCep')?.value || null,
+        contato: document.getElementById('regContato')?.value || null,
+      };
+
+      try {
+        await API.request('/api/auth/register', {
+          method: 'POST',
+          body: JSON.stringify({ nome, cargo, email, password: senha, profile })
+        });
+        showForm('servidor');
+      } catch (e) {
+        setFormError('registro', e.message);
+      } finally {
+        setButtonLoading(btn, false);
+      }
+    }
+
+    async function loginServidor(btn) {
+      clearFormError('servidor');
+      clearFieldError('emailServidor');
+      clearFieldError('senhaServidor');
+
+      const email = document.getElementById('emailServidor').value.trim();
+      const senha = document.getElementById('senhaServidor').value;
+
+      let hasError = false;
+      if (!email) { setFieldError('emailServidor', 'Informe seu e-mail.'); hasError = true; }
+      if (!senha) { setFieldError('senhaServidor', 'Informe sua senha.'); hasError = true; }
+      if (hasError) return;
+
+      setButtonLoading(btn, true, 'Entrando...');
+      try {
+        await API.request('/api/auth/login/servidor', {
+          method: 'POST',
+          body: JSON.stringify({ email, password: senha })
+        });
+        window.location.href = 'painel-servidor.html';
+      } catch (e) {
+        setFormError('servidor', e.message);
+      } finally {
+        setButtonLoading(btn, false);
+      }
+    }
+
+    async function enviarCodigo(btn) {
+      clearFormError('recuperar');
+      clearFieldError('recEmail');
+
+      const email = document.getElementById('recEmail').value.trim();
+      if (!email) {
+        setFieldError('recEmail', 'Informe seu e-mail.');
+        return;
+      }
+
+      setButtonLoading(btn, true, 'Enviando...');
+      try {
+        await API.request('/api/auth/password-reset/request', {
+          method: 'POST',
+          body: JSON.stringify({ email })
+        });
+        setFormError('recuperar', 'Código enviado ao email (simulação).');
+      } catch (e) {
+        setFormError('recuperar', e.message);
+      } finally {
+        setButtonLoading(btn, false);
+      }
+    }
+
+    window.addEventListener('DOMContentLoaded', () => {
+      attachCpfMask('regCpf');
+
+      const cargoSelect = document.getElementById('regCargo');
+      if (cargoSelect) {
+        cargoSelect.addEventListener('change', () => {
+          syncCargoDependentFields();
+        });
+      }
+
+      if (String(window.location.hash || '') === '#registro') {
+        startRegistroWizard();
+      } else {
+        const any = document.querySelector('#registro .wizard-step');
+        if (any) registroSetStep(0);
+      }
+
+      syncCargoDependentFields();
+    });
+
+    function openTermsModal() {
+      document.getElementById('modalTermos').classList.add('active');
+    }
+    function closeTermsModal() {
+      document.getElementById('modalTermos').classList.remove('active');
+    }
+    function openPrivacyModal() {
+      document.getElementById('modalPrivacidade').classList.add('active');
+    }
+    function closePrivacyModal() {
+      document.getElementById('modalPrivacidade').classList.remove('active');
+    }
+  </script>
+
+  <!-- Modal Termos de Uso -->
+  <div class="modal-overlay" id="modalTermos" role="dialog" aria-modal="true">
+    <div class="modal">
+      <header>
+        <h3>Termos de Uso do Sistema de Protocolos</h3>
+        <button type="button" class="close-btn" onclick="closeTermsModal()">Fechar</button>
+      </header>
+      <p>O presente documento estabelece os Termos de Uso do Sistema de Protocolos Eletrônicos da Prefeitura de Demerval Lobão, destinado ao registro, acompanhamento e tramitação de solicitações administrativas realizadas pelos cidadãos.</p>
+      <ol class="terms-list">
+        <li><strong>Finalidade do Sistema</strong>: permitir o registro, acompanhamento e tramitação de solicitações administrativas de forma eletrônica.</li>
+        <li><strong>Responsabilidades do Usuário</strong>: o usuário compromete-se a fornecer informações verdadeiras, manter o sigilo de suas credenciais de acesso e acompanhar o andamento de suas solicitações por meio do sistema.</li>
+        <li><strong>Responsabilidades da Prefeitura</strong>: a Prefeitura compromete-se a processar as demandas conforme os prazos e normas aplicáveis, adotando medidas razoáveis de segurança para proteção das informações.</li>
+        <li><strong>Indisponibilidade do Sistema</strong>: em caso de indisponibilidade temporária do sistema por motivos técnicos ou de manutenção, a Prefeitura envidará esforços para restabelecer o serviço com a maior brevidade possível.</li>
+        <li><strong>Uso Indevido</strong>: é vedada a utilização do sistema para fins ilícitos, ofensivos ou que comprometam a integridade, segurança ou funcionamento da plataforma.</li>
+        <li><strong>Aceitação dos Termos</strong>: ao prosseguir, o usuário declara que leu, compreendeu e concorda integralmente com estes Termos de Uso.</li>
+      </ol>
+    </div>
+  </div>
+
+  <!-- Modal Política de Privacidade -->
+  <div class="modal-overlay" id="modalPrivacidade" role="dialog" aria-modal="true">
+    <div class="modal">
+      <header>
+        <h3>Política de Privacidade do Sistema de Protocolos Eletrônicos</h3>
+        <button type="button" class="close-btn" onclick="closePrivacyModal()">Fechar</button>
+      </header>
+      <p>A Prefeitura de Demerval Lobão respeita a privacidade dos cidadãos e realiza o tratamento de dados pessoais em conformidade com a Lei nº 13.709/2018 – Lei Geral de Proteção de Dados (LGPD).</p>
+      <ol class="terms-list">
+        <li><strong>Dados Pessoais Coletados</strong>: Nome completo; CPF; endereço de e-mail; telefone; informações fornecidas no cadastro e na abertura de protocolos; dados técnicos, como data, hora e endereço IP de acesso.</li>
+        <li><strong>Finalidade do Tratamento</strong>: identificação do usuário; registro, tramitação e acompanhamento de protocolos administrativos; comunicação entre a Prefeitura e o cidadão; cumprimento de obrigações legais e administrativas.</li>
+        <li><strong>Compartilhamento de Dados</strong>: os dados poderão ser compartilhados internamente, apenas com setores e servidores municipais responsáveis pelo atendimento, observando o princípio da necessidade. Não há compartilhamento com terceiros, salvo obrigação legal ou determinação judicial.</li>
+        <li><strong>Segurança das Informações</strong>: adoção de medidas técnicas e administrativas razoáveis para proteger os dados contra acessos não autorizados, perda, alteração ou divulgação indevida.</li>
+        <li><strong>Direitos do Titular dos Dados</strong>: solicitar confirmação de tratamento, acesso, correção/atualização e informações sobre o uso dos dados, por meio dos canais oficiais da Prefeitura.</li>
+        <li><strong>Armazenamento dos Dados</strong>: os dados serão armazenados pelo período necessário ao cumprimento das finalidades legais, administrativas e regulatórias.</li>
+        <li><strong>Alterações nesta Política</strong>: a política pode ser atualizada a qualquer momento para adequação a alterações legais ou operacionais.</li>
+        <li><strong>Aceitação</strong>: ao utilizar o Sistema de Protocolos Eletrônicos, o usuário declara ciência e concordância com esta Política de Privacidade.</li>
+      </ol>
+    </div>
+  </div>
+
+</body>
+</html>

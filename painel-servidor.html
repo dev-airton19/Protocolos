@@ -1,0 +1,3001 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Novo Protocolo - SEMED</title>
+    <style>
+        :root {
+            --primary-color: #0a3d62;
+            --primary-hover: #082d49;
+            --bg-color: #f0f2f5;
+            --text-color: #333;
+            --border-radius: 8px;
+        }
+
+        body {
+            font-family: 'Segoe UI', 'Roboto', Helvetica, Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            height: 100vh;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+        }
+
+        /* --- BARRA LATERAL --- */
+        .sidebar {
+            width: 260px;
+            background: linear-gradient(135deg, #0a3d62, #3c6382);
+            color: white;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 4px 0 15px rgba(0, 0, 0, 0.1);
+            z-index: 10;
+            flex-shrink: 0;
+        }
+
+        .sidebar-header {
+            padding: 25px;
+            text-align: center;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .sidebar-header h2 {
+            margin: 0;
+            font-size: 20px;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+        }
+
+        .menu {
+            list-style: none;
+            padding: 0;
+            margin: 20px 0;
+        }
+
+        .menu a {
+            display: flex;
+            align-items: center;
+            padding: 15px 25px;
+            color: rgba(255, 255, 255, 0.85);
+            text-decoration: none;
+            font-size: 15px;
+            transition: all 0.3s ease;
+            border-left: 4px solid transparent;
+            cursor: pointer;
+            font-weight: 500;
+        }
+
+        .menu a:hover,
+        .menu a.active {
+            background: rgba(255, 255, 255, 0.1);
+            border-left-color: #ffffff;
+            color: white;
+        }
+
+        /* --- ÁREA PRINCIPAL --- */
+        .main-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow-y: auto;
+            height: 100vh;
+        }
+
+        /* --- CABEÇALHO SUPERIOR --- */
+        .header {
+            min-height: 70px;
+            background: white;
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+            padding: 0 30px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            position: sticky;
+            top: 0;
+            z-index: 5;
+        }
+
+        .mobile-menu-btn {
+            display: none;
+            align-items: center;
+            justify-content: center;
+            width: 42px;
+            height: 42px;
+            border-radius: 10px;
+            border: 1px solid #e9ecef;
+            background: white;
+            color: var(--primary-color);
+            font-size: 22px;
+            line-height: 1;
+            cursor: pointer;
+        }
+
+        .profile-container {
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+            padding: 6px 12px;
+            border-radius: 30px;
+            transition: 0.3s;
+            border: 1px solid transparent;
+        }
+
+        .profile-container:hover {
+            background-color: #f8f9fa;
+            border-color: #e9ecef;
+        }
+
+        .profile-name {
+            margin-right: 12px;
+            color: var(--primary-color);
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        .profile-icon {
+            width: 38px;
+            height: 38px;
+            background: #e6ecf5;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .profile-icon svg {
+            width: 20px;
+            height: 20px;
+            fill: var(--primary-color);
+        }
+
+        /* --- MENU DROPDOWN DO PERFIL --- */
+        .profile-menu {
+            position: absolute;
+            top: 70px;
+            right: 30px;
+            background: white;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            min-width: 200px;
+            display: none;
+            z-index: 100;
+            overflow: hidden;
+        }
+
+        .profile-menu.active {
+            display: block;
+        }
+
+        .profile-menu a {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 12px 16px;
+            color: var(--primary-color);
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 500;
+            border-bottom: 1px solid #f0f0f0;
+            transition: 0.2s;
+            cursor: pointer;
+        }
+
+        .profile-menu a:last-child {
+            border-bottom: none;
+        }
+
+        .profile-menu a:hover {
+            background-color: #f8f9fa;
+        }
+
+        .profile-menu a.logout {
+            color: #dc3545;
+        }
+
+        /* --- CONTEÚDO GENÉRICO --- */
+        .card {
+            background: white;
+            padding: 40px;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03);
+            margin: 20px auto;
+            max-width: 1000px; /* Largura um pouco maior para a tabela */
+            width: 90%;
+            border: 1px solid #eaeaea;
+        }
+
+        .doc-header {
+            text-align: center;
+            margin-bottom: 30px;
+            border-bottom: 2px solid var(--primary-color);
+            padding-bottom: 20px;
+        }
+
+        .doc-header img {
+            max-width: 450px;
+            height: auto;
+        }
+
+        .doc-header h1 {
+            color: var(--primary-color);
+            margin: 15px 0 5px 0;
+            font-size: 20px;
+            text-transform: uppercase;
+            font-weight: 700;
+        }
+
+        /* --- ESTILOS DO FORMULÁRIO --- */
+        .form-section-title {
+            background-color: #f8f9fa;
+            color: var(--primary-color);
+            padding: 10px 15px;
+            font-weight: 700;
+            border-radius: 6px;
+            margin-top: 30px;
+            margin-bottom: 20px;
+            font-size: 14px;
+            border-left: 4px solid var(--primary-color);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(12, 1fr);
+            gap: 20px;
+        }
+
+        .col-12 { grid-column: span 12; }
+        .col-8 { grid-column: span 8; }
+        .col-6 { grid-column: span 6; }
+        .col-5 { grid-column: span 5; }
+        .col-4 { grid-column: span 4; }
+        .col-3 { grid-column: span 3; }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .form-group label {
+            font-size: 12px;
+            font-weight: 600;
+            color: #555;
+            margin-bottom: 6px;
+            text-transform: uppercase;
+        }
+
+        .form-group input,
+        .form-group select {
+            padding: 10px 12px;
+            border: 1px solid #dde1e6;
+            border-radius: 6px;
+            font-family: inherit;
+            font-size: 14px;
+            transition: all 0.2s;
+            outline: none;
+            height: 42px;
+            box-sizing: border-box;
+            width: 100%;
+            background-color: #fff;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(10, 61, 98, 0.1);
+        }
+
+        .radio-group {
+            display: flex;
+            gap: 20px;
+            padding: 10px 0;
+            flex-wrap: wrap;
+        }
+
+        .radio-item {
+            display: flex;
+            align-items: center;
+            font-size: 14px;
+            color: #444;
+            cursor: pointer;
+        }
+
+        .radio-item input[type="radio"] {
+            margin-right: 8px;
+            cursor: pointer;
+            width: 18px;
+            height: 18px;
+            accent-color: var(--primary-color);
+        }
+
+        .action-buttons {
+            margin-top: 40px;
+            display: flex;
+            justify-content: flex-end;
+            gap: 15px;
+            padding-top: 20px;
+            border-top: 1px solid #eee;
+        }
+
+        .btn {
+            padding: 12px 28px;
+            border: none;
+            border-radius: 6px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.2s;
+            font-size: 14px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .btn-primary {
+            background-color: var(--primary-color);
+            color: white;
+            box-shadow: 0 4px 6px rgba(10, 61, 98, 0.2);
+        }
+
+        .btn-primary:hover {
+            background-color: var(--primary-hover);
+            transform: translateY(-1px);
+        }
+
+        .btn-secondary {
+            background-color: #f1f3f5;
+            color: #495057;
+        }
+
+        .btn-secondary:hover {
+            background-color: #e9ecef;
+        }
+
+        .btn-danger {
+            background-color: #fff;
+            border: 1px solid #dc3545;
+            color: #dc3545;
+            padding: 6px 12px;
+            font-size: 12px;
+        }
+        .btn-danger:hover { background-color: #dc3545; color: white; }
+
+        .info-box {
+            background-color: #fff8e1;
+            color: #856404;
+            padding: 15px 20px;
+            border-radius: 6px;
+            font-size: 13px;
+            margin-top: 20px;
+            border-left: 4px solid #ffc107;
+        }
+
+        /* ---------------------------------------------------------
+           ESTILOS NOVOS E MELHORADOS PARA A TABELA (PROFISSIONAL)
+           --------------------------------------------------------- */
+        
+        .page-title {
+            color: var(--primary-color);
+            margin-bottom: 25px;
+            font-size: 24px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .acompanhamento-toolbar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 14px;
+            margin: 10px 0 14px;
+            flex-wrap: wrap;
+        }
+
+        .acompanhamento-help {
+            color: #666;
+            font-size: 14px;
+            margin: 0;
+            flex: 1;
+            min-width: 240px;
+        }
+
+        .search-field {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            min-width: 260px;
+        }
+
+        .search-input-wrap {
+            position: relative;
+            display: inline-flex;
+            align-items: center;
+        }
+
+        .search-btn {
+            position: absolute;
+            right: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
+            border: 1px solid #e0e0e0;
+            background: transparent;
+            color: #5f6368;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: 0.2s;
+            box-shadow: none;
+        }
+
+        .search-btn:hover {
+            border-color: #cfd8dc;
+            background: transparent;
+            color: var(--primary-color);
+        }
+
+        .search-btn:active {
+            transform: translateY(-50%) scale(0.98);
+        }
+
+        .search-btn:focus-visible {
+            outline: none;
+            border-color: var(--primary-color);
+        }
+
+        .search-btn svg {
+            width: 18px;
+            height: 18px;
+        }
+
+        .search-field label {
+            font-size: 13px;
+            color: #5f6368;
+            font-weight: 600;
+            white-space: nowrap;
+        }
+
+        .search-field input {
+            width: 260px;
+            max-width: 100%;
+            padding: 10px 38px 10px 12px;
+            border: 1px solid #cfd8dc;
+            border-radius: 8px;
+            font-size: 14px;
+            outline: none;
+            background: white;
+        }
+
+        .search-field input:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(10, 61, 98, 0.12);
+        }
+
+        .search-field input:focus + .search-btn {
+            border-color: var(--primary-color);
+            color: var(--primary-color);
+        }
+
+        .pagination {
+            display: none;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            margin-top: 12px;
+            flex-wrap: wrap;
+        }
+
+        .pagination-info {
+            color: #5f6368;
+            font-size: 13px;
+            font-weight: 600;
+        }
+
+        .pagination-actions {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .pagination-actions .btn-outline-sm {
+            padding: 8px 12px;
+        }
+
+        /* Container da Tabela com cantos arredondados e sombra */
+        .table-responsive {
+            overflow-x: auto;
+            border-radius: 8px;
+            box-shadow: 0 0 0 1px #e0e0e0; /* Borda sutil em volta */
+            background: white;
+        }
+
+        .table-acompanhamento {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 14px;
+            white-space: nowrap; /* Evita quebra de linha indesejada */
+        }
+
+        /* Cabeçalho da Tabela - Limpo e Moderno */
+        .table-acompanhamento thead {
+            background-color: #f8f9fa;
+        }
+
+        .table-acompanhamento th {
+            padding: 16px 20px;
+            text-align: left;
+            font-weight: 600;
+            color: #5f6368;
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            border-bottom: 2px solid #eaecf0;
+        }
+
+        /* Corpo da Tabela */
+        .table-acompanhamento td {
+            padding: 16px 20px;
+            color: #333;
+            border-bottom: 1px solid #eaecf0;
+            vertical-align: middle;
+        }
+
+        /* Efeito Hover nas linhas */
+        .table-acompanhamento tbody tr {
+            transition: background-color 0.2s;
+        }
+
+        .table-acompanhamento tbody tr:hover {
+            background-color: #f8fbff; /* Azul muito claro ao passar o mouse */
+        }
+        
+        /* Última linha sem borda */
+        .table-acompanhamento tbody tr:last-child td {
+            border-bottom: none;
+        }
+
+        /* Coluna de ID destacado */
+        .id-column {
+            font-family: 'Consolas', monospace;
+            font-weight: 700;
+            color: var(--primary-color);
+        }
+
+        /* Botão de Ação na Tabela (Outline/Ghost Button) */
+        .btn-outline-sm {
+            background: transparent;
+            border: 1px solid #cfd8dc;
+            color: #546e7a;
+            padding: 6px 14px;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .btn-outline-sm:hover {
+            border-color: var(--primary-color);
+            color: var(--primary-color);
+            background-color: rgba(10, 61, 98, 0.05);
+        }
+
+        /* --- BADGES DE STATUS (O toque profissional) --- */
+        .status-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        /* Status: Enviado (Azul) */
+        .status-enviado {
+            background-color: #e3f2fd;
+            color: #1565c0;
+        }
+
+        /* Status: Em Análise (Amarelo/Laranja) */
+        .status-analise {
+            background-color: #fff3e0;
+            color: #e65100;
+        }
+
+        /* Status: Deferido/Concluído (Verde) */
+        .status-concluido {
+            background-color: #e8f5e9;
+            color: #2e7d32;
+        }
+
+        /* Status: Indeferido/Cancelado (Vermelho) */
+        .status-erro {
+            background-color: #ffebee;
+            color: #c62828;
+        }
+
+        /* Estado Vazio (Empty State) */
+        .empty-state {
+            padding: 40px;
+            text-align: center;
+            color: #888;
+        }
+        .empty-state svg {
+            width: 48px;
+            height: 48px;
+            fill: #ddd;
+            margin-bottom: 15px;
+        }
+
+        /* --- ESTILO TABELAS DE ANEXOS --- */
+        .table-anexos {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+            margin-bottom: 20px;
+            border: 1px solid #e0e0e0;
+            border-radius: 6px;
+            overflow: hidden;
+        }
+        .table-anexos th {
+            background-color: #f8f9fa;
+            color: #555;
+            text-align: left;
+            padding: 12px;
+            font-weight: 600;
+            border-bottom: 1px solid #eee;
+        }
+        .table-anexos td {
+            padding: 12px;
+            border-bottom: 1px solid #eee;
+            text-align: left;
+            color: #333;
+        }
+        .section-header {
+            color: var(--primary-color);
+            font-size: 16px;
+            margin-top: 30px;
+            margin-bottom: 15px;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 8px;
+            font-weight: 600;
+        }
+
+        /* Overlay para sidebar mobile */
+        .sidebar-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 150;
+            opacity: 0;
+            transition: opacity 0.25s ease;
+        }
+
+        .sidebar-overlay.active {
+            display: block;
+            opacity: 1;
+        }
+
+        /* =========================================
+           RESPONSIVIDADE - TABLETS (max-width: 1024px)
+           ========================================= */
+        @media (max-width: 1024px) {
+            .sidebar {
+                width: 220px;
+            }
+
+            .card {
+                max-width: 100%;
+                width: 95%;
+                padding: 30px;
+            }
+
+            .doc-header img {
+                max-width: 300px;
+            }
+
+            .acompanhamento-toolbar {
+                gap: 10px;
+            }
+
+            .search-field input {
+                width: 200px;
+            }
+        }
+
+        /* =========================================
+           RESPONSIVIDADE - MOBILE (max-width: 768px)
+           ========================================= */
+        @media (max-width: 768px) {
+            body {
+                flex-direction: column;
+                height: auto;
+                min-height: 100vh;
+            }
+
+            .sidebar {
+                position: fixed;
+                top: 0;
+                left: 0;
+                height: 100vh;
+                width: 280px;
+                transform: translateX(-100%);
+                transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+                z-index: 200;
+            }
+
+            .sidebar.open {
+                transform: translateX(0);
+            }
+
+            body.sidebar-open {
+                overflow: hidden;
+            }
+
+            .main-content {
+                height: auto;
+                min-height: 100vh;
+            }
+
+            /* Grid responsivo */
+            .col-12, .col-8, .col-6, .col-5, .col-4, .col-3 {
+                grid-column: span 12;
+            }
+
+            .form-grid {
+                gap: 15px;
+            }
+
+            /* Cards */
+            .card { 
+                padding: 20px; 
+                width: 95%; 
+                margin: 15px auto;
+                border-radius: 10px;
+            }
+
+            /* Header */
+            .header { 
+                padding: 0 15px; 
+                justify-content: space-between;
+                min-height: 60px;
+            }
+
+            .mobile-menu-btn { 
+                display: inline-flex;
+                order: -1;
+            }
+
+            .profile-name {
+                display: none;
+            }
+
+            /* Tabela responsiva */
+            .table-responsive {
+                margin: 0 -10px;
+                width: calc(100% + 20px);
+                border-radius: 0;
+            }
+
+            .table-acompanhamento th,
+            .table-acompanhamento td {
+                padding: 12px 10px;
+                font-size: 13px;
+            }
+
+            .table-acompanhamento th:nth-child(4),
+            .table-acompanhamento td:nth-child(4) {
+                display: none; /* Esconde coluna de data em mobile */
+            }
+
+            /* Toolbar de busca */
+            .acompanhamento-toolbar {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .search-field {
+                width: 100%;
+                min-width: unset;
+            }
+
+            .search-field input {
+                width: 100%;
+            }
+
+            .acompanhamento-help {
+                font-size: 13px;
+            }
+
+            /* Paginação */
+            .pagination {
+                flex-direction: column;
+                gap: 10px;
+                text-align: center;
+            }
+
+            .pagination-info {
+                order: 1;
+            }
+
+            /* Botões de ação */
+            .action-buttons {
+                flex-direction: column;
+                gap: 10px;
+            }
+
+            .action-buttons .btn {
+                width: 100%;
+            }
+
+            /* Documento/header */
+            .doc-header img {
+                max-width: 250px;
+            }
+
+            .doc-header h1 {
+                font-size: 16px;
+            }
+
+            .page-title {
+                font-size: 20px;
+            }
+
+            /* Tabelas anexos */
+            .table-anexos,
+            .table-docs {
+                display: block;
+                width: 100%;
+                overflow-x: auto;
+                -webkit-overflow-scrolling: touch;
+            }
+
+            /* Chat */
+            .chat-container {
+                height: 400px;
+            }
+
+            .chat-message {
+                max-width: 90%;
+            }
+
+            /* Menu dropdown */
+            .profile-menu {
+                right: 10px;
+                top: 60px;
+            }
+        }
+
+        /* =========================================
+           RESPONSIVIDADE - MOBILE PEQUENO (max-width: 480px)
+           ========================================= */
+        @media (max-width: 480px) {
+            .card {
+                padding: 15px;
+                width: 100%;
+                margin: 10px 0;
+                border-radius: 0;
+                border-left: none;
+                border-right: none;
+            }
+
+            .form-section-title {
+                font-size: 12px;
+                padding: 8px 12px;
+                margin-top: 20px;
+                margin-bottom: 15px;
+            }
+
+            .form-group label {
+                font-size: 11px;
+            }
+
+            .form-group input,
+            .form-group select {
+                height: 40px;
+                font-size: 14px;
+            }
+
+            .btn {
+                padding: 10px 20px;
+                font-size: 13px;
+            }
+
+            .table-acompanhamento th,
+            .table-acompanhamento td {
+                padding: 10px 8px;
+                font-size: 12px;
+            }
+
+            .status-badge {
+                padding: 3px 8px;
+                font-size: 10px;
+            }
+
+            .btn-outline-sm {
+                padding: 5px 10px;
+                font-size: 11px;
+            }
+
+            .sidebar {
+                width: 100%;
+            }
+
+            .page-title {
+                font-size: 18px;
+            }
+
+            /* Chat compacto */
+            .chat-container {
+                height: 350px;
+            }
+
+            .chat-header {
+                padding: 12px 15px;
+                font-size: 14px;
+            }
+
+            .chat-messages {
+                padding: 15px;
+            }
+
+            .chat-message {
+                padding: 10px 14px;
+                font-size: 13px;
+            }
+
+            .chat-input-container {
+                padding: 10px;
+            }
+
+            .chat-input {
+                padding: 10px 14px;
+                font-size: 13px;
+            }
+
+            .chat-send-btn {
+                width: 40px;
+                height: 40px;
+            }
+        }
+
+        /* =========================================
+           ESTILOS DO CHAT
+           ========================================= */
+        .chat-container {
+            background: #fff;
+            border-radius: 12px;
+            border: 1px solid #e0e0e0;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            height: 450px;
+        }
+
+        .chat-header {
+            background: linear-gradient(135deg, #0a3d62, #3c6382);
+            color: white;
+            padding: 15px 20px;
+            font-weight: 600;
+            font-size: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .chat-header svg {
+            width: 20px;
+            height: 20px;
+            fill: currentColor;
+        }
+
+        .chat-messages {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px;
+            background: #f8f9fa;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .chat-messages:empty::before {
+            content: "Nenhuma mensagem ainda. Inicie uma conversa!";
+            color: #999;
+            text-align: center;
+            padding: 40px;
+            font-style: italic;
+        }
+
+        .chat-message {
+            max-width: 80%;
+            padding: 12px 16px;
+            border-radius: 16px;
+            font-size: 14px;
+            line-height: 1.5;
+            position: relative;
+            word-wrap: break-word;
+        }
+
+        .chat-message.sent {
+            background: linear-gradient(135deg, #0a3d62, #1e5f8a);
+            color: white;
+            align-self: flex-end;
+            border-bottom-right-radius: 4px;
+        }
+
+        .chat-message.received {
+            background: white;
+            color: #333;
+            align-self: flex-start;
+            border: 1px solid #e0e0e0;
+            border-bottom-left-radius: 4px;
+        }
+
+        .chat-message-sender {
+            font-size: 11px;
+            font-weight: 600;
+            margin-bottom: 4px;
+            opacity: 0.85;
+        }
+
+        .chat-message.received .chat-message-sender {
+            color: #0a3d62;
+        }
+
+        .chat-message-time {
+            font-size: 10px;
+            opacity: 0.7;
+            margin-top: 6px;
+            text-align: right;
+        }
+
+        .chat-input-container {
+            padding: 15px;
+            background: white;
+            border-top: 1px solid #e0e0e0;
+            display: flex;
+            gap: 10px;
+            align-items: flex-end;
+        }
+
+        .chat-input {
+            flex: 1;
+            border: 1px solid #dde1e6;
+            border-radius: 20px;
+            padding: 12px 18px;
+            font-size: 14px;
+            resize: none;
+            max-height: 100px;
+            min-height: 44px;
+            font-family: inherit;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+
+        .chat-input:focus {
+            border-color: #0a3d62;
+        }
+
+        .chat-send-btn {
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            border: none;
+            background: linear-gradient(135deg, #0a3d62, #3c6382);
+            color: white;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: transform 0.2s, box-shadow 0.2s;
+            flex-shrink: 0;
+        }
+
+        .chat-send-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 4px 12px rgba(10, 61, 98, 0.3);
+        }
+
+        .chat-send-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .chat-send-btn svg {
+            width: 20px;
+            height: 20px;
+            fill: currentColor;
+        }
+
+        .chat-loading {
+            text-align: center;
+            padding: 20px;
+            color: #666;
+        }
+
+        .chat-badge {
+            background: #dc3545;
+            color: white;
+            font-size: 10px;
+            font-weight: 700;
+            padding: 2px 6px;
+            border-radius: 10px;
+            margin-left: 8px;
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- Overlay para fechar sidebar no mobile -->
+    <div class="sidebar-overlay" onclick="toggleSidebar(false)"></div>
+
+    <div class="sidebar">
+        <div class="sidebar-header">
+            <h2>Protocolo Digital</h2>
+        </div>
+        <ul class="menu">
+            <li>
+                <a href="#" class="active" onclick="abrirForm(this)">
+                    <span class="menu-icon"></span> Novo Requerimento
+                </a>
+            </li>
+            <li>
+                <a href="#" onclick="abrirAcompanhamento(this)">
+                    <span class="menu-icon"></span> Acompanhamento
+                </a>
+            </li>
+        </ul>
+    </div>
+
+    <div class="main-content">
+
+        <div class="header">
+            <button class="mobile-menu-btn" type="button" aria-label="Abrir menu" onclick="toggleSidebar()">☰</button>
+            <div class="profile-container" onclick="toggleProfileMenu()">
+                <span class="profile-name">Servidor Logado</span>
+                <div class="profile-icon">
+                    <svg viewBox="0 0 24 24">
+                        <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z" />
+                    </svg>
+                </div>
+                <div class="profile-menu" id="profileMenu">
+                    <a href="#" onclick="abrirPerfil(event)">Meu Perfil</a>
+                    <a href="#" class="logout" onclick="logout(event)">Sair</a>
+                </div>
+            </div>
+        </div>
+
+        <div id="perfilPage" class="card" style="display:none; max-width: 1100px;">
+            <div style="display:flex; align-items:flex-start; justify-content: space-between; gap: 14px; flex-wrap: wrap;">
+                <div style="min-width: 240px;">
+                    <div class="page-title" style="margin:0;">Meu Perfil</div>
+                    <p class="acompanhamento-help" style="margin: 6px 0 0;">Confira seus dados cadastrados e, se necessário, atualize as informações permitidas.</p>
+                </div>
+
+                <div style="display:flex; gap:10px; align-items:center;">
+                    <button type="button" class="btn btn-secondary" onclick="voltarPerfil()">Voltar</button>
+                    <button type="button" class="btn btn-secondary" id="btnEditarPerfil" onclick="habilitarEdicaoPerfil()">Editar</button>
+                    <button type="button" class="btn btn-primary" id="btnSalvarPerfil" onclick="salvarPerfil()" style="display:none;">Salvar</button>
+                    <button type="button" class="btn btn-secondary" id="btnCancelarPerfil" onclick="cancelarEdicaoPerfil()" style="display:none;">Cancelar</button>
+                </div>
+            </div>
+
+            <div class="form-section-title">Dados Pessoais</div>
+            <div class="form-grid">
+                <div class="form-group col-8">
+                    <label>Nome Completo</label>
+                    <input type="text" id="perfil_nome" readonly disabled>
+                </div>
+
+                <div class="form-group col-4">
+                    <label>Data de Nascimento</label>
+                    <input type="date" id="perfil_nascimento" readonly disabled>
+                </div>
+                <div class="form-group col-4">
+                    <label>CPF</label>
+                    <input type="text" id="perfil_cpf" readonly disabled maxlength="14" placeholder="000.000.000-00">
+                </div>
+                <div class="form-group col-4">
+                    <label>RG</label>
+                    <input type="text" id="perfil_rg" readonly disabled>
+                </div>
+            </div>
+
+            <div class="form-section-title">Endereço e Contato</div>
+            <div class="form-grid">
+                <div class="form-group col-6">
+                    <label>E-mail</label>
+                    <input type="email" id="perfil_email" disabled placeholder="exemplo@email.com" onblur="validarEmail(this)">
+                </div>
+                <div class="form-group col-3">
+                    <label>CEP</label>
+                    <input type="text" id="perfil_cep" disabled maxlength="9" placeholder="00000-000" oninput="formatarCEP(this); buscarCEP(this.value)">
+                </div>
+                <div class="form-group col-3">
+                    <label>Contato</label>
+                    <input type="text" id="perfil_contato" disabled maxlength="15" placeholder="(00) 00000-0000" oninput="formatarTelefone(this)">
+                </div>
+
+                <div class="form-group col-6">
+                    <label>Endereço</label>
+                    <input type="text" id="perfil_endereco" disabled>
+                </div>
+                <div class="form-group col-3">
+                    <label>Bairro</label>
+                    <input type="text" id="perfil_bairro" disabled>
+                </div>
+                <div class="form-group col-3">
+                    <label>Município</label>
+                    <input type="text" id="perfil_municipio" disabled>
+                </div>
+
+                <div class="form-group col-3">
+                    <label>Estado</label>
+                    <input type="text" id="perfil_estado" disabled maxlength="2">
+                </div>
+            </div>
+        </div>
+
+        <div id="acompanhamentoPage" class="card" style="display:none; max-width: 1100px;">
+
+            <div class="page-title">
+                <span style="font-size: 20px;"></span> Meus Processos
+            </div>
+
+            <div class="acompanhamento-toolbar">
+                <p class="acompanhamento-help">
+                    Acompanhe abaixo o status de todos os seus requerimentos abertos junto à secretaria.
+                </p>
+
+                <div class="search-field">
+                    <label for="addProtocoloCodigo">Adicionar protocolo pelo número</label>
+                    <div class="search-input-wrap">
+                        <input id="addProtocoloCodigo" type="text" placeholder="Ex.: SEMEDABC12345D67890" autocomplete="off">
+                        <button type="button" class="search-btn" aria-label="Adicionar" title="Adicionar" onclick="adicionarProtocoloPorCodigo()">
+                            <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                                <path fill="currentColor" d="M19 11H13V5h-2v6H5v2h6v6h2v-6h6z"/>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="search-field">
+                    <label for="filtroProtocolo">Buscar protocolo</label>
+                    <div class="search-input-wrap">
+                        <input id="filtroProtocolo" type="text" placeholder="" autocomplete="off">
+                        <button type="button" class="search-btn" aria-label="Buscar" title="Buscar" onclick="buscarProtocoloAgora()">
+                            <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                                <path fill="currentColor" d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="table-responsive">
+                <table class="table-acompanhamento">
+                    <thead>
+                        <tr>
+                            <th width="10%">Protocolo</th>
+                            <th width="20%">Data</th>
+                            <th width="30%">Natureza</th>
+                            <th width="20%">Status Atual</th>
+                            <th width="20%" style="text-align: right;">Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tabelaAcompanhamento">
+                        </tbody>
+                </table>
+            </div>
+
+            <div class="pagination" id="paginacaoAcompanhamento">
+                <div class="pagination-info" id="paginacaoInfo"></div>
+                <div class="pagination-actions">
+                    <button type="button" class="btn-outline-sm" id="btnPaginaAnterior">Anterior</button>
+                    <button type="button" class="btn-outline-sm" id="btnPaginaProxima">Próxima</button>
+                </div>
+            </div>
+
+        </div>
+
+        <div id="detalheProtocoloPage" style="display:none; max-width: 1100px; margin: 20px auto; width: 90%;">
+            <div class="card" style="margin: 0; width: 100%;">
+                <div class="doc-header">
+                    <img src="brasão.png" alt="Brasão">
+                    <h1 style="margin-top: 15px; color: #333; font-size: 18px;">REQUERIMENTO</h1>
+                </div>
+
+                <div class="action-buttons" style="margin-top: 10px; justify-content: flex-end;">
+                    <button type="button" class="btn btn-secondary" onclick="baixarProtocoloAtualPdf()">Baixar Protocolo (PDF)</button>
+                </div>
+
+                <form id="formDetalhes" style="pointer-events:none; opacity:0.8;"></form>
+            </div>
+
+            <div class="card" style="margin-top: 16px; width: 100%;">
+                <h3 style="color:#0a3d62; margin-top:0;">Documentação do Processo</h3>
+
+                <div style="margin-bottom: 20px; background: #f9f9f9; padding: 15px; border-radius: 8px; border: 1px dashed #ccc;">
+                    <p style="margin: 0 0 10px 0; font-size: 13px; color: #555;">Deseja adicionar mais documentos a este processo?</p>
+                    <input type="file" id="inputAnexoExtra" style="display: none;" accept=".pdf, .jpg, .png, .jpeg">
+                    <button type="button" class="btn btn-primary" onclick="clicarAnexarExtra()" style="padding: 8px 15px; font-size: 13px;">
+                        📎 Anexar Novo Documento
+                    </button>
+                </div>
+
+                <div id="pdfAreaDetalhes"></div>
+
+                <button onclick="voltarAcompanhamento()" class="btn btn-secondary" style="margin-top:25px;">
+                    ⬅ Voltar para a lista
+                </button>
+            </div>
+
+            <!-- CHAT DO PROTOCOLO -->
+            <div class="card" style="margin-top: 16px; width: 100%; padding: 0; overflow: hidden;">
+                <div class="chat-container">
+                    <div class="chat-header">
+                        <svg viewBox="0 0 24 24"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm0 14H5.17L4 17.17V4h16v12z"/><path d="M7 9h2v2H7zm4 0h2v2h-2zm4 0h2v2h-2z"/></svg>
+                        Chat com a Secretaria
+                        <span id="chatUnreadBadge" class="chat-badge" style="display: none;">0</span>
+                    </div>
+                    <div class="chat-messages" id="chatMessages">
+                        <!-- Mensagens serão inseridas aqui -->
+                    </div>
+                    <div class="chat-input-container">
+                        <textarea 
+                            class="chat-input" 
+                            id="chatInput" 
+                            placeholder="Digite sua mensagem..." 
+                            rows="1"
+                            onkeydown="handleChatKeydown(event)"
+                        ></textarea>
+                        <button class="chat-send-btn" id="chatSendBtn" onclick="enviarMensagemChat()" title="Enviar mensagem">
+                            <svg viewBox="0 0 24 24"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="formPage">
+            <form id="requerimentoForm" onsubmit="salvarRequerimento(event)">
+                <div class="card">
+                    <div class="doc-header">
+                        <img src="brasão.png" alt="Brasão">
+                        <h1 style="margin-top: 15px; color: #333; font-size: 18px;">REQUERIMENTO</h1>
+                    </div>
+
+                    <div class="form-grid">
+                        <div class="form-group col-12">
+                            <label>Autoridade a quem é dirigido:</label>
+                            <input type="text" value="SECRETARIA MUNICIPAL DE EDUCAÇÃO" readonly
+                                style="background-color: #f2f2f2; color: #666; font-weight: 600;">
+                        </div>
+                    </div>
+
+                    <div class="form-section-title">1. Dados Pessoais</div>
+                    <div class="form-grid">
+                        <div class="form-group col-8">
+                            <label for="nome">Nome Completo do Servidor(a):</label>
+                            <input type="text" id="nome" name="nome" required placeholder="Digite seu nome completo">
+                        </div>
+                        <div class="form-group col-4">
+                            <label for="nascimento">Data de Nascimento:</label>
+                            <input type="date" id="nascimento" name="nascimento">
+                        </div>
+
+                        <div class="form-group col-4">
+                            <label for="cpf">CPF:</label>
+                            <input type="text" id="cpf" name="cpf" placeholder="000.000.000-00">
+                        </div>
+                        <div class="form-group col-4">
+                            <label for="rg">RG:</label>
+                            <input type="text" id="rg" name="rg">
+                        </div>
+                        <div class="form-group col-4">
+                            <label for="localTrabalho">Local de Trabalho:</label>
+                            <input type="text" id="localTrabalho" name="localTrabalho" placeholder="Ex: Escola Municipal...">
+                        </div>
+                    </div>
+
+                    <div class="form-section-title">2. Dados Funcionais</div>
+                    <div class="form-grid">
+                        <div class="form-group col-6">
+                            <label for="cargo">Cargo/Função:</label>
+                            <select id="cargo" name="cargo" onchange="toggleClasseNivel()" required>
+                                <option value="">Selecione o cargo...</option>
+                                <option value="Professor efetivo">Professor efetivo</option>
+                                <option value="Auxiliar de Serviços gerais">Auxiliar de Serviços gerais</option>
+                                <option value="Professor temporário">Professor temporário</option>
+                                <option value="Auxiliar técnico pedagógico">Auxiliar técnico pedagógico</option>
+                                <option value="Vigia">Vigia</option>
+                                <option value="Cargo comissionado">Cargo comissionado</option>
+                                <option value="Outros">Outros</option>
+                            </select>
+                        </div>
+                        <div class="form-group col-6" id="cargoOutrosContainer" style="display: none;">
+                            <label for="cargoOutros">Especifique o cargo:</label>
+                            <input type="text" id="cargoOutros" name="cargoOutros" placeholder="Digite o cargo...">
+                        </div>
+                        <div class="form-group col-3" id="classeContainer" style="display: none;">
+                            <label for="classe">Classe:</label>
+                            <input type="text" id="classe" name="classe">
+                        </div>
+                        <div class="form-group col-3" id="nivelContainer" style="display: none;">
+                            <label for="nivel">Nível:</label>
+                            <input type="text" id="nivel" name="nivel">
+                        </div>
+
+                        <div class="form-group col-4">
+                            <label for="admissao">Data de Admissão:</label>
+                            <input type="date" id="admissao" name="admissao">
+                        </div>
+                        <div class="form-group col-8">
+                            <label>Vínculo Empregatício:</label>
+                            <div class="radio-group">
+                                <label class="radio-item"><input type="radio" name="vinculo" value="Estatutario"> Estatutário</label>
+                                <label class="radio-item"><input type="radio" name="vinculo" value="Outros"> Outros</label>
+                            </div>
+                        </div>
+
+                        <div class="form-group col-12">
+                            <label>Situação Funcional:</label>
+                            <div class="radio-group" style="background: #f8f9fa; padding: 15px; border-radius: 8px; border: 1px solid #eee;">
+                                <label class="radio-item"><input type="radio" name="situacao" value="Efetivo"> Efetivo</label>
+                                <label class="radio-item"><input type="radio" name="situacao" value="Prestador"> Prestador de Serviço</label>
+                                <label class="radio-item"><input type="radio" name="situacao" value="Temporario"> Professor Temporário</label>
+                                <label class="radio-item"><input type="radio" name="situacao" value="Comissionado"> Cargo Comissionado</label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-section-title">3. Endereço e Contato</div>
+                    <div class="form-grid">
+                        <div class="form-group col-4">
+                            <label for="cep">CEP:</label>
+                            <input type="text" id="cep" name="cep" placeholder="00000-000" maxlength="9" onblur="buscarCep()">
+                            <small id="cepStatus" style="color: #666; font-size: 11px;"></small>
+                        </div>
+                        <div class="form-group col-8">
+                        </div>
+                        <div class="form-group col-12">
+                            <label for="endereco">Endereço:</label>
+                            <input type="text" id="endereco" name="endereco" placeholder="Rua, Avenida, Número...">
+                        </div>
+
+                        <div class="form-group col-4">
+                            <label for="bairro">Bairro:</label>
+                            <input type="text" id="bairro" name="bairro">
+                        </div>
+                        <div class="form-group col-5">
+                            <label for="municipio">Município:</label>
+                            <input type="text" id="municipio" name="municipio" value="Demerval Lobão">
+                        </div>
+                        <div class="form-group col-3">
+                            <label for="estado">Estado:</label>
+                            <input type="text" id="estado" name="estado" value="PI">
+                        </div>
+
+                        <div class="form-group col-6">
+                            <label for="contato">Telefone/Contato:</label>
+                            <input type="text" id="contato" name="contato">
+                        </div>
+                        <div class="form-group col-6">
+                            <label for="email">E-mail:</label>
+                            <input type="email" id="email" name="email">
+                        </div>
+                    </div>
+
+                    <div class="form-section-title">4. Natureza do Requerimento</div>
+                    <div class="form-grid">
+                        <div class="form-group col-12">
+                            <label>Selecione o tipo de solicitação:</label>
+                            <div class="radio-group" style="background: #f8f9fa; padding: 15px; border-radius: 8px; border: 1px solid #eee;">
+                                <label class="radio-item"><input type="radio" name="natureza" value="Ferias"> Férias</label>
+                                <label class="radio-item"><input type="radio" name="natureza" value="LicencaPremio"> Licença Prêmio</label>
+                                <label class="radio-item"><input type="radio" name="natureza" value="LicencaMaternidade"> Licença Maternidade</label>
+                                <label class="radio-item"><input type="radio" name="natureza" value="outros" id="opcaoOutros"> Outros</label>
+                            </div>
+
+                            <div class="form-group col-12" id="campoOutros" style="display: none; margin-top: 15px;">
+                                <label>Descreva o motivo:</label>
+                                <input type="text" id="descricaoOutros" name="descricaoOutros" placeholder="Especifique sua solicitação..." style="width: 100%;">
+                            </div>
+                        </div>
+
+                        <div class="form-group col-6">
+                            <label for="inicio">Início:</label>
+                            <input type="date" id="inicio" name="inicio">
+                        </div>
+                        <div class="form-group col-6">
+                            <label for="fim">Fim:</label>
+                            <input type="date" id="fim" name="fim">
+                        </div>
+                    </div>
+
+                    <div class="form-section-title">5. Anexos</div>
+                    <div class="info-box">
+                        <strong>IMPORTANTE:</strong> É obrigatório anexar o contracheque mais recente. O sistema aceita PDF ou Imagens (JPG/PNG) até 3MB.
+                    </div>
+                    <div class="form-grid" style="margin-top: 15px;">
+                        <div class="form-group col-12">
+                            <label for="anexo">Selecione o arquivo:</label>
+                            <input type="file" id="anexo" name="anexo" accept=".pdf, .jpg, .png, .jpeg" style="padding: 8px;">
+                        </div>
+                    </div>
+
+                    <div class="action-buttons">
+                        <button type="button" class="btn btn-secondary" onclick="limparFormulario()">Limpar</button>
+                        <button type="submit" class="btn btn-primary">Salvar e Enviar Protocolo</button>
+                    </div>
+
+                    <div class="action-buttons" id="downloadActions" style="display:none; margin-top: 10px;">
+                        <button type="button" class="btn btn-secondary" onclick="baixarUltimoProtocoloPdf()">Baixar Protocolo (PDF)</button>
+                    </div>
+
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        let lastCheckedNatureza = null;
+        let protocoloAtualID = null;
+        let sessionUser = null;
+        let ultimoProtocoloEnviado = null;
+        let protocoloDetalheAtual = null;
+
+        // Importante: sessão/cookies só funcionam quando esta página é servida pelo backend.
+        if (window.location.protocol === 'file:') {
+            alert('Abra pelo servidor: http://localhost:3001/');
+        }
+
+        function renderUserGreeting(user) {
+            const el = document.querySelector('.profile-name');
+            if (!el) return;
+            const nome = (user && (user.nome || user.email)) ? String(user.nome || user.email) : 'Servidor';
+            el.textContent = `Bem-vindo, ${nome}`;
+        }
+
+        const API = {
+            async request(path, options = {}) {
+                try {
+                    const res = await fetch(path, {
+                        headers: { 'Content-Type': 'application/json', ...(options.headers || {}) },
+                        credentials: 'include',
+                        ...options,
+                    });
+
+                    const raw = await res.text();
+                    const data = (() => {
+                        try { return raw ? JSON.parse(raw) : {}; } catch { return {}; }
+                    })();
+
+                    if (!res.ok || data.ok === false) {
+                        const msg = data.error || (raw && raw.trim()) || `Erro HTTP ${res.status}`;
+                        throw new Error(`${msg} (em ${path})`);
+                    }
+
+                    return data;
+                } catch (e) {
+                    // Erro comum: abrir por file:// ou backend desligado -> "Failed to fetch"
+                    const msg = e?.message || String(e);
+                    if (msg.toLowerCase().includes('failed to fetch')) {
+                        throw new Error(`Falha ao conectar no servidor. Abra pelo servidor (ex.: http://localhost:3001/) e confirme que o backend está rodando. (em ${path})`);
+                    }
+                    throw e;
+                }
+            }
+        };
+
+        async function ensureServidorSession() {
+            const s = await API.request('/api/session');
+            sessionUser = s.user;
+            if (!sessionUser || sessionUser.role !== 'servidor') {
+                alert('Sessão inválida. Faça login como Servidor.');
+                window.location.href = 'login-servidor.html';
+                return;
+            }
+
+            renderUserGreeting(sessionUser);
+        }
+
+        function setIfEmpty(id, value) {
+            const el = document.getElementById(id);
+            if (!el) return;
+            const v = value ?? '';
+            if (String(v).trim() === '') return;
+            if (String(el.value || '').trim() !== '') return;
+            el.value = v;
+        }
+
+        function setValue(id, value) {
+            const el = document.getElementById(id);
+            if (!el) return;
+            el.value = value ?? '';
+        }
+
+        function setField(id, value, overwrite) {
+            if (overwrite) return setValue(id, value);
+            return setIfEmpty(id, value);
+        }
+
+        function setRadio(name, value, overwrite) {
+            const radios = Array.from(document.querySelectorAll(`input[name="${CSS.escape(name)}"]`));
+            if (!radios.length) return;
+
+            if (overwrite) {
+                radios.forEach((r) => (r.checked = false));
+            }
+
+            if (!value) return;
+            const sel = document.querySelector(`input[name="${CSS.escape(name)}"][value="${CSS.escape(String(value))}"]`);
+            if (sel) sel.checked = true;
+        }
+
+        async function prefillFromProfile({ overwrite = false } = {}) {
+            try {
+                const r = await API.request('/api/servidor/profile');
+                const p = r.profile || {};
+
+                // Campos do protocolo preenchidos automaticamente (exceto natureza do requerimento)
+                setField('nome', p.nome, overwrite);
+                setField('nascimento', p.nascimento, overwrite);
+                setField('cpf', p.cpf, overwrite);
+                setField('email', p.email, overwrite);
+                setField('endereco', p.endereco, overwrite);
+                setField('bairro', p.bairro, overwrite);
+                // município vem com default, mas o perfil deve prevalecer se existir
+                if (overwrite) {
+                    if (p.municipio) {
+                        setValue('municipio', p.municipio);
+                    }
+                } else {
+                    if (p.municipio) {
+                        const m = document.getElementById('municipio');
+                        if (m) m.value = p.municipio;
+                    }
+                }
+                setField('cep', p.cep, overwrite);
+                // Usa contato do perfil, ou telefone como fallback
+                setField('contato', p.contato || p.telefone, overwrite);
+            } catch {
+                // Se não existir perfil (ex.: contas antigas), apenas não preenche.
+            }
+        }
+
+        const convertBase64 = (file) => {
+            return new Promise((resolve, reject) => {
+                const fileReader = new FileReader();
+                fileReader.readAsDataURL(file);
+                fileReader.onload = () => resolve(fileReader.result);
+                fileReader.onerror = (error) => reject(error);
+            });
+        };
+
+        // Função para mostrar/ocultar classe e nível baseado no cargo selecionado
+        function toggleClasseNivel() {
+            const cargoSelect = document.getElementById('cargo');
+            const cargoValue = cargoSelect.value;
+            
+            const classeContainer = document.getElementById('classeContainer');
+            const nivelContainer = document.getElementById('nivelContainer');
+            const cargoOutrosContainer = document.getElementById('cargoOutrosContainer');
+            
+            // Mostrar classe e nível apenas para Professor efetivo
+            if (cargoValue === 'Professor efetivo') {
+                classeContainer.style.display = 'block';
+                nivelContainer.style.display = 'block';
+            } else {
+                classeContainer.style.display = 'none';
+                nivelContainer.style.display = 'none';
+                document.getElementById('classe').value = '';
+                document.getElementById('nivel').value = '';
+            }
+            
+            // Mostrar campo de especificação para "Outros"
+            if (cargoValue === 'Outros') {
+                cargoOutrosContainer.style.display = 'block';
+            } else {
+                cargoOutrosContainer.style.display = 'none';
+                document.getElementById('cargoOutros').value = '';
+            }
+        }
+
+        // Função para buscar CEP via ViaCEP
+        async function buscarCep() {
+            const cepInput = document.getElementById('cep');
+            const cepStatus = document.getElementById('cepStatus');
+            let cep = cepInput.value.replace(/\D/g, '');
+            
+            if (cep.length !== 8) {
+                cepStatus.textContent = '';
+                return;
+            }
+            
+            cepStatus.textContent = 'Buscando...';
+            cepStatus.style.color = '#666';
+            
+            try {
+                const response = await fetch(`https://viacep.com.br/ws/${cep}/json/`);
+                const data = await response.json();
+                
+                if (data.erro) {
+                    cepStatus.textContent = 'CEP não encontrado';
+                    cepStatus.style.color = '#dc3545';
+                    return;
+                }
+                
+                // Preencher os campos
+                document.getElementById('endereco').value = data.logradouro || '';
+                document.getElementById('bairro').value = data.bairro || '';
+                document.getElementById('municipio').value = data.localidade || '';
+                document.getElementById('estado').value = data.uf || '';
+                
+                cepStatus.textContent = '✓ Endereço encontrado';
+                cepStatus.style.color = '#28a745';
+                
+                // Formatar o CEP com hífen
+                cepInput.value = cep.replace(/(\d{5})(\d{3})/, '$1-$2');
+                
+            } catch (error) {
+                cepStatus.textContent = 'Erro ao buscar CEP';
+                cepStatus.style.color = '#dc3545';
+                console.error('Erro ao buscar CEP:', error);
+            }
+        }
+
+        // Máscara para CEP
+        document.addEventListener('DOMContentLoaded', () => {
+            const cepInput = document.getElementById('cep');
+            if (cepInput) {
+                cepInput.addEventListener('input', (e) => {
+                    let value = e.target.value.replace(/\D/g, '');
+                    if (value.length > 5) {
+                        value = value.substring(0, 5) + '-' + value.substring(5, 8);
+                    }
+                    e.target.value = value;
+                });
+            }
+        });
+
+        async function salvarRequerimento(event) {
+            event.preventDefault();
+
+            const nome = document.getElementById('nome').value;
+            const radioSelecionado = document.querySelector('input[name="natureza"]:checked');
+
+            if (!nome || !radioSelecionado) {
+                alert("Por favor, preencha o nome e selecione a natureza do requerimento.");
+                return;
+            }
+
+            const arquivoInput = document.getElementById("anexo");
+            let listaAnexos = [];
+
+            if (arquivoInput.files.length > 0) {
+                const file = arquivoInput.files[0];
+                if (file.size > 3 * 1024 * 1024) {
+                    alert("Arquivo muito grande (Limite 3MB).");
+                    return;
+                }
+                try {
+                    const base64 = await convertBase64(file);
+                    listaAnexos.push({
+                        id: Date.now(),
+                        nome: file.name,
+                        data: new Date().toLocaleDateString('pt-BR'),
+                        hora: new Date().toLocaleTimeString('pt-BR'),
+                        base64: base64,
+                        origem: 'Servidor'
+                    });
+                } catch (error) {
+                    alert("Erro ao processar arquivo.");
+                    return;
+                }
+            }
+
+            const cargoSelect = document.getElementById('cargo');
+            const cargoValue = cargoSelect.value;
+            const cargoFinal = cargoValue === 'Outros' 
+                ? document.getElementById('cargoOutros').value 
+                : cargoValue;
+
+            const novo = {
+                dataCriacao: new Date().toLocaleDateString('pt-BR'),
+                nome: document.getElementById('nome').value,
+                nascimento: document.getElementById('nascimento').value,
+                cpf: document.getElementById('cpf').value,
+                rg: document.getElementById('rg').value,
+                localTrabalho: document.getElementById('localTrabalho').value,
+                cargo: cargoFinal,
+                classe: cargoValue === 'Professor efetivo' ? document.getElementById('classe').value : '',
+                nivel: cargoValue === 'Professor efetivo' ? document.getElementById('nivel').value : '',
+                admissao: document.getElementById('admissao').value,
+                vinculo: document.querySelector('input[name="vinculo"]:checked')?.value || "",
+                situacao: document.querySelector('input[name="situacao"]:checked')?.value || "",
+                cep: document.getElementById('cep').value,
+                endereco: document.getElementById('endereco').value,
+                bairro: document.getElementById('bairro').value,
+                municipio: document.getElementById('municipio').value,
+                estado: document.getElementById('estado').value,
+                contato: document.getElementById('contato').value,
+                email: document.getElementById('email').value,
+                natureza: radioSelecionado.value,
+                descricaoOutros: document.getElementById('descricaoOutros').value,
+                inicio: document.getElementById('inicio').value,
+                fim: document.getElementById('fim').value,
+                anexos: listaAnexos,
+                status: "Enviado"
+            };
+            
+            try {
+                const r = await API.request('/api/protocolos', {
+                    method: 'POST',
+                    body: JSON.stringify({ payload: novo })
+                });
+                                ultimoProtocoloEnviado = { id: r.id, codigo: r.codigo, payload: novo };
+                                const dl = document.getElementById('downloadActions');
+                                if (dl) dl.style.display = 'flex';
+                                alert(`Protocolo ${r.codigo || r.id} enviado com sucesso! Agora você pode baixar o PDF.`);
+                                // Mantém na tela para o usuário conseguir baixar o comprovante.
+            } catch (e) {
+                alert(e.message || 'Erro ao salvar.');
+            }
+        }
+
+                function escapeHtml(value) {
+                        return String(value ?? '')
+                                .replaceAll('&', '&amp;')
+                                .replaceAll('<', '&lt;')
+                                .replaceAll('>', '&gt;')
+                                .replaceAll('"', '&quot;')
+                                .replaceAll("'", '&#39;');
+                }
+
+                function buildComprovanteHtml(protocolo) {
+                    const id = protocolo?.id ?? '';
+                    const codigo = protocolo?.codigo ?? id;
+                        const p = protocolo?.payload ?? {};
+                        const anexos = Array.isArray(p.anexos) ? p.anexos : [];
+                        const anexosHtml = anexos.length
+                                ? `<ul>${anexos.map(a => `<li>${escapeHtml(a.nome || 'Arquivo')}</li>`).join('')}</ul>`
+                                : '<div>Nenhum anexo informado.</div>';
+
+                        return `<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Protocolo ${escapeHtml(codigo)}</title>
+    <style>
+        body{font-family:Segoe UI, Arial, sans-serif; margin:24px; color:#111;}
+        .top{display:flex; align-items:center; justify-content:space-between; gap:14px; margin-bottom:18px;}
+        .brand{display:flex; align-items:center; gap:14px;}
+        .logo{height:56px; width:auto; object-fit:contain;}
+        h1{font-size:18px; margin:0;}
+        .muted{color:#555; font-size:12px; margin-top:4px;}
+        .box{border:1px solid #ddd; border-radius:10px; padding:14px; margin:12px 0;}
+        .grid{display:grid; grid-template-columns: 1fr 1fr; gap:10px;}
+        .row{display:flex; gap:8px;}
+        .k{min-width:170px; color:#444; font-weight:600;}
+        .v{color:#111;}
+        .btns{display:flex; gap:10px;}
+        .btn{border:1px solid #ccc; background:#fff; padding:10px 12px; border-radius:10px; cursor:pointer; font-weight:700;}
+        .btn.primary{border-color:#0a3d62; color:#0a3d62;}
+        @media print { .no-print{display:none;} body{margin:0;} }
+        @page { margin: 14mm; }
+    </style>
+</head>
+<body>
+    <div class="top">
+        <div class="brand">
+            <img class="logo" src="/assets/logo_sec.png" alt="SEMED" />
+            <div>
+                <h1>Comprovante de Protocolo</h1>
+                <div class="muted">Sistema de Protocolos – SEMED</div>
+            </div>
+        </div>
+        <div class="btns no-print">
+            <button class="btn primary" type="button" onclick="window.print()">Imprimir</button>
+            <button class="btn" type="button" onclick="window.close()">Fechar</button>
+        </div>
+    </div>
+
+    <div class="box">
+        <div class="row"><div class="k">Número do Protocolo:</div><div class="v">${escapeHtml(codigo)}</div></div>
+        <div class="row"><div class="k">Data de Criação:</div><div class="v">${escapeHtml(p.dataCriacao)}</div></div>
+        <div class="row"><div class="k">Status:</div><div class="v">${escapeHtml(p.status)}</div></div>
+    </div>
+
+    <div class="box">
+        <div class="grid">
+            <div class="row"><div class="k">Nome:</div><div class="v">${escapeHtml(p.nome)}</div></div>
+            <div class="row"><div class="k">CPF:</div><div class="v">${escapeHtml(p.cpf)}</div></div>
+            <div class="row"><div class="k">RG:</div><div class="v">${escapeHtml(p.rg)}</div></div>
+            <div class="row"><div class="k">Nascimento:</div><div class="v">${escapeHtml(p.nascimento)}</div></div>
+            <div class="row"><div class="k">Cargo:</div><div class="v">${escapeHtml(p.cargo)}</div></div>
+            <div class="row"><div class="k">Local de Trabalho:</div><div class="v">${escapeHtml(p.localTrabalho)}</div></div>
+            ${p.classe ? `<div class="row"><div class="k">Classe:</div><div class="v">${escapeHtml(p.classe)}</div></div>` : ''}
+            ${p.nivel ? `<div class="row"><div class="k">Nível:</div><div class="v">${escapeHtml(p.nivel)}</div></div>` : ''}
+            <div class="row"><div class="k">Admissão:</div><div class="v">${escapeHtml(p.admissao)}</div></div>
+            <div class="row"><div class="k">Vínculo:</div><div class="v">${escapeHtml(p.vinculo)}</div></div>
+            <div class="row"><div class="k">Situação:</div><div class="v">${escapeHtml(p.situacao)}</div></div>
+            <div class="row"><div class="k">Contato:</div><div class="v">${escapeHtml(p.contato)}</div></div>
+            <div class="row"><div class="k">E-mail:</div><div class="v">${escapeHtml(p.email)}</div></div>
+            <div class="row"><div class="k">Endereço:</div><div class="v">${escapeHtml(p.endereco)}</div></div>
+            <div class="row"><div class="k">Bairro:</div><div class="v">${escapeHtml(p.bairro)}</div></div>
+            <div class="row"><div class="k">Município:</div><div class="v">${escapeHtml(p.municipio)}</div></div>
+            <div class="row"><div class="k">Estado:</div><div class="v">${escapeHtml(p.estado)}</div></div>
+            <div class="row"><div class="k">CEP:</div><div class="v">${escapeHtml(p.cep)}</div></div>
+        </div>
+    </div>
+
+    <div class="box">
+        <div class="row"><div class="k">Natureza:</div><div class="v">${escapeHtml(p.natureza)}</div></div>
+        ${p.natureza === 'outros' ? `<div class="row"><div class="k">Descrição (Outros):</div><div class="v">${escapeHtml(p.descricaoOutros)}</div></div>` : ''}
+        <div class="row"><div class="k">Início:</div><div class="v">${escapeHtml(p.inicio)}</div></div>
+        <div class="row"><div class="k">Fim:</div><div class="v">${escapeHtml(p.fim)}</div></div>
+    </div>
+
+    <div class="box">
+        <div class="row"><div class="k">Anexos:</div><div class="v">${anexosHtml}</div></div>
+    </div>
+
+    <div class="muted no-print">Clique em Imprimir e selecione “Salvar como PDF”.</div>
+</body>
+</html>`;
+                }
+
+                function baixarUltimoProtocoloPdf() {
+                        if (!ultimoProtocoloEnviado?.id) {
+                                alert('Nenhum protocolo recente para baixar.');
+                                return;
+                        }
+                        const html = buildComprovanteHtml(ultimoProtocoloEnviado);
+
+                        const win = window.open('', '_blank');
+                        if (!win) {
+                                alert('O navegador bloqueou a janela do comprovante. Permita pop-ups para baixar o PDF.');
+                                return;
+                        }
+                        win.document.open();
+                        win.document.write(html);
+                        win.document.close();
+                }
+
+                    function baixarProtocoloAtualPdf() {
+                        if (!protocoloDetalheAtual?.id) {
+                            alert('Abra um protocolo para baixar o PDF.');
+                            return;
+                        }
+
+                        const html = buildComprovanteHtml(protocoloDetalheAtual);
+
+                        const win = window.open('', '_blank');
+                        if (!win) {
+                            alert('O navegador bloqueou a janela do comprovante. Permita pop-ups para baixar o PDF.');
+                            return;
+                        }
+                        win.document.open();
+                        win.document.write(html);
+                        win.document.close();
+                    }
+
+        function limparFormulario() {
+            document.getElementById("requerimentoForm").reset();
+            document.getElementById('campoOutros').style.display = 'none';
+            lastCheckedNatureza = null;
+        }
+
+        document.querySelectorAll('input[name="natureza"]').forEach(radio => {
+            radio.addEventListener('click', function () {
+                const campo = document.getElementById('campoOutros');
+                if (this === lastCheckedNatureza) {
+                    this.checked = false;
+                    lastCheckedNatureza = null;
+                    campo.style.display = 'none';
+                    document.getElementById('descricaoOutros').value = "";
+                } else {
+                    lastCheckedNatureza = this;
+                    if (this.value === 'outros') {
+                        campo.style.display = 'block';
+                    } else {
+                        campo.style.display = 'none';
+                        document.getElementById('descricaoOutros').value = "";
+                    }
+                }
+            });
+        });
+
+        function abrirForm(menu) {
+            document.querySelectorAll('.menu a').forEach(a => a.classList.remove("active"));
+            menu.classList.add("active");
+            document.getElementById("formPage").style.display = "block";
+            document.getElementById("acompanhamentoPage").style.display = "none";
+            document.getElementById("detalheProtocoloPage").style.display = "none";
+            document.getElementById("perfilPage").style.display = "none";
+        }
+
+        function abrirAcompanhamento(menu) {
+            document.querySelectorAll('.menu a').forEach(a => a.classList.remove("active"));
+            menu.classList.add("active");
+            document.getElementById("formPage").style.display = "none";
+            document.getElementById("acompanhamentoPage").style.display = "block";
+            document.getElementById("detalheProtocoloPage").style.display = "none";
+            document.getElementById("perfilPage").style.display = "none";
+            carregarTabela();
+        }
+
+        function verPDF(base64Data) {
+            if(!base64Data) return;
+            const newWindow = window.open();
+            if(!newWindow) return;
+            const iframe = newWindow.document.createElement('iframe');
+            iframe.setAttribute('frameborder', '0');
+            iframe.style.border = '0';
+            iframe.style.top = '0px';
+            iframe.style.left = '0px';
+            iframe.style.bottom = '0px';
+            iframe.style.right = '0px';
+            iframe.style.width = '100%';
+            iframe.style.height = '100%';
+            iframe.src = String(base64Data);
+            newWindow.document.body.style.margin = '0';
+            newWindow.document.body.appendChild(iframe);
+        }
+
+        async function carregarTabela(page = 1) {
+            paginaAtual = page;
+            let lista = [];
+            let paginationInfo = null;
+            
+            try {
+                const r = await API.request(`/api/protocolos?page=${page}&limit=${PAGE_SIZE}`);
+                // backend já filtra por servidor logado e ordena por data desc
+                lista = (r.items || []).map(x => ({ 
+                    id: x.id, 
+                    codigo: x.codigo, 
+                    createdAt: x.createdAt,
+                    ...(x.payload || {}), 
+                    status: x.status || (x.payload?.status) 
+                }));
+                paginationInfo = r.pagination || null;
+            } catch (e) {
+                alert(e.message);
+                return;
+            }
+
+            acompanhamentoLista = lista;
+            serverPagination = paginationInfo;
+            renderTabelaAcompanhamento(lista);
+            atualizarPaginacaoServidor();
+        }
+
+        async function adicionarProtocoloPorCodigo() {
+            const input = document.getElementById('addProtocoloCodigo');
+            const codigo = String(input?.value || '').trim();
+            if (!codigo) {
+                alert('Informe o número do protocolo.');
+                return;
+            }
+
+            try {
+                await API.request('/api/servidor/protocolos/claim', {
+                    method: 'POST',
+                    body: JSON.stringify({ codigo })
+                });
+                if (input) input.value = '';
+                alert('Protocolo adicionado com sucesso.');
+                await carregarTabela();
+            } catch (e) {
+                alert(e.message || 'Não foi possível adicionar o protocolo.');
+            }
+        }
+
+        let acompanhamentoLista = [];
+        let serverPagination = null;
+        const PAGE_SIZE = 10;
+        let paginaAtual = 1;
+
+        function atualizarPaginacaoServidor() {
+            const el = document.getElementById('paginacaoAcompanhamento');
+            const info = document.getElementById('paginacaoInfo');
+            const btnPrev = document.getElementById('btnPaginaAnterior');
+            const btnNext = document.getElementById('btnPaginaProxima');
+
+            if (!el || !info || !btnPrev || !btnNext) return;
+
+            if (!serverPagination || serverPagination.totalPages <= 1) {
+                el.style.display = 'none';
+                return;
+            }
+
+            el.style.display = 'flex';
+            const { page, total, totalPages } = serverPagination;
+            const inicio = (page - 1) * PAGE_SIZE + 1;
+            const fim = Math.min(page * PAGE_SIZE, total);
+            info.textContent = `Mostrando ${inicio}-${fim} de ${total} (Página ${page} de ${totalPages})`;
+
+            btnPrev.disabled = !serverPagination.hasPrev;
+            btnNext.disabled = !serverPagination.hasNext;
+        }
+
+        function irPaginaAnterior() {
+            if (serverPagination && serverPagination.hasPrev) {
+                carregarTabela(paginaAtual - 1);
+            }
+        }
+
+        function irPaginaProxima() {
+            if (serverPagination && serverPagination.hasNext) {
+                carregarTabela(paginaAtual + 1);
+            }
+        }
+
+        function renderTabelaAcompanhamento(lista) {
+            const tbody = document.getElementById("tabelaAcompanhamento");
+            if (!tbody) return;
+            tbody.textContent = "";
+
+            if(!Array.isArray(lista) || lista.length === 0) {
+                const tr = document.createElement('tr');
+                const td = document.createElement('td');
+                td.colSpan = 5;
+                const wrap = document.createElement('div');
+                wrap.className = 'empty-state';
+                wrap.innerHTML = '<svg viewBox="0 0 24 24"><path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z"/></svg>';
+                const p = document.createElement('p');
+                p.textContent = 'Nenhum protocolo encontrado.';
+                const small = document.createElement('small');
+                small.textContent = 'Ajuste o filtro ou crie um novo requerimento.';
+                wrap.appendChild(p);
+                wrap.appendChild(small);
+                td.appendChild(wrap);
+                tr.appendChild(td);
+                tbody.appendChild(tr);
+                return;
+            }
+
+            lista.forEach(p => {
+                // Define a cor do Badge baseado no status
+                let badgeClass = 'status-enviado';
+                if(p.status === 'Em Análise') badgeClass = 'status-analise';
+                if(p.status === 'Deferido' || p.status === 'Concluído') badgeClass = 'status-concluido';
+                if(p.status === 'Indeferido') badgeClass = 'status-erro';
+
+                const tr = document.createElement('tr');
+                tr.style.cursor = 'pointer';
+                tr.addEventListener('click', () => abrirDetalhes(p.id));
+
+                const tdId = document.createElement('td');
+                tdId.className = 'id-column';
+                tdId.textContent = p.codigo ? String(p.codigo) : `#${p.id}`;
+
+                const tdData = document.createElement('td');
+                tdData.textContent = p.dataCriacao ?? '';
+
+                const tdNatureza = document.createElement('td');
+                tdNatureza.style.textTransform = 'capitalize';
+                tdNatureza.textContent = p.natureza ?? '';
+
+                const tdStatus = document.createElement('td');
+                const span = document.createElement('span');
+                span.className = `status-badge ${badgeClass}`;
+                span.textContent = p.status ?? '';
+                tdStatus.appendChild(span);
+
+                const tdAcao = document.createElement('td');
+                tdAcao.style.textAlign = 'right';
+                const btn = document.createElement('button');
+                btn.className = 'btn-outline-sm';
+                btn.textContent = 'Visualizar';
+                tdAcao.appendChild(btn);
+
+                tr.appendChild(tdId);
+                tr.appendChild(tdData);
+                tr.appendChild(tdNatureza);
+                tr.appendChild(tdStatus);
+                tr.appendChild(tdAcao);
+                tbody.appendChild(tr);
+            });
+        }
+
+        function aplicarFiltroProtocolo() {
+            // Recarrega a tabela da página 1 quando filtrar
+            // Para busca local nos itens já carregados
+            const input = document.getElementById('filtroProtocolo');
+            const raw = String(input?.value ?? '').trim();
+            
+            if (!raw) {
+                renderTabelaAcompanhamento(acompanhamentoLista);
+                atualizarPaginacaoServidor();
+                return;
+            }
+            
+            const term = raw.toUpperCase().replace('#', '').replace(/[^A-Z0-9]/g, '');
+            const norm = (v) => String(v ?? '').toUpperCase().replace(/[^A-Z0-9]/g, '');
+            
+            const filtered = (acompanhamentoLista || []).filter((p) => {
+                const byCodigo = norm(p.codigo).includes(term);
+                const byId = norm(p.id).includes(term);
+                const byNome = norm(p.nome).includes(term);
+                return byCodigo || byId || byNome;
+            });
+            
+            renderTabelaAcompanhamento(filtered);
+            // Esconde paginação quando filtrando localmente
+            const el = document.getElementById('paginacaoAcompanhamento');
+            if (el) el.style.display = 'none';
+        }
+
+        function buscarProtocoloAgora() {
+            const input = document.getElementById('filtroProtocolo');
+            if (input) input.focus();
+            aplicarFiltroProtocolo();
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const input = document.getElementById('filtroProtocolo');
+            if (input) {
+                input.addEventListener('input', aplicarFiltroProtocolo);
+            }
+
+            const btnPrev = document.getElementById('btnPaginaAnterior');
+            const btnNext = document.getElementById('btnPaginaProxima');
+            if (btnPrev) {
+                btnPrev.addEventListener('click', irPaginaAnterior);
+            }
+            if (btnNext) {
+                btnNext.addEventListener('click', irPaginaProxima);
+            }
+        });
+
+        async function abrirDetalhes(id) {
+            let p;
+            let payloadOriginal = null;
+            let codigo = null;
+            try {
+                const r = await API.request(`/api/protocolos/${id}`);
+                payloadOriginal = r.item.payload || {};
+                codigo = r.item.codigo || null;
+                p = { id: r.item.id, ...(r.item.payload || {}), status: r.item.status || r.item.payload?.status };
+            } catch (e) {
+                alert(e.message);
+                return;
+            }
+
+            protocoloAtualID = id;
+
+            protocoloDetalheAtual = {
+                id,
+                codigo,
+                payload: {
+                    ...(payloadOriginal || {}),
+                    status: (payloadOriginal && payloadOriginal.status) ? payloadOriginal.status : (p.status || payloadOriginal?.status)
+                }
+            };
+
+            document.getElementById("acompanhamentoPage").style.display = "none";
+            document.getElementById("detalheProtocoloPage").style.display = "block";
+
+            // Inicializa o chat para este protocolo
+            inicializarChat(id);
+
+            const form = document.getElementById("formDetalhes");
+            const val = (v) => v ? v : '-';
+
+            const esc = (v) => String(v ?? '')
+                .replaceAll('&', '&amp;')
+                .replaceAll('<', '&lt;')
+                .replaceAll('>', '&gt;')
+                .replaceAll('"', '&quot;')
+                .replaceAll("'", '&#39;');
+
+            form.innerHTML = `
+                <div class="form-section-title">1. Dados Pessoais</div>
+                <div class="form-grid">
+                    <div class="form-group col-8">
+                        <label>Nome Completo:</label>
+                        <input type="text" value="${esc(val(p.nome))}" readonly>
+                    </div>
+                    <div class="form-group col-4">
+                        <label>Data de Nascimento:</label>
+                        <input type="text" value="${esc(val(p.nascimento))}" readonly>
+                    </div>
+                    <div class="form-group col-4">
+                        <label>CPF:</label>
+                        <input type="text" value="${esc(val(p.cpf))}" readonly>
+                    </div>
+                    <div class="form-group col-4">
+                        <label>RG:</label>
+                        <input type="text" value="${esc(val(p.rg))}" readonly>
+                    </div>
+                    <div class="form-group col-4">
+                        <label>Local de Trabalho:</label>
+                        <input type="text" value="${esc(val(p.localTrabalho))}" readonly>
+                    </div>
+                </div>
+
+                <div class="form-section-title">2. Dados Funcionais</div>
+                <div class="form-grid">
+                    <div class="form-group col-6">
+                        <label>Cargo/Função:</label>
+                        <input type="text" value="${esc(val(p.cargo))}" readonly>
+                    </div>
+                    ${p.classe ? `<div class="form-group col-3">
+                        <label>Classe:</label>
+                        <input type="text" value="${esc(val(p.classe))}" readonly>
+                    </div>` : ''}
+                    ${p.nivel ? `<div class="form-group col-3">
+                        <label>Nível:</label>
+                        <input type="text" value="${esc(val(p.nivel))}" readonly>
+                    </div>` : ''}
+                    <div class="form-group col-4">
+                        <label>Data de Admissão:</label>
+                        <input type="text" value="${esc(val(p.admissao))}" readonly>
+                    </div>
+                    <div class="form-group col-4">
+                        <label>Vínculo Empregatício:</label>
+                        <input type="text" value="${esc(val(p.vinculo))}" readonly>
+                    </div>
+                    <div class="form-group col-4">
+                        <label>Situação Funcional:</label>
+                        <input type="text" value="${esc(val(p.situacao))}" readonly>
+                    </div>
+                </div>
+
+                <div class="form-section-title">3. Endereço e Contato</div>
+                <div class="form-grid">
+                    <div class="form-group col-4">
+                        <label>CEP:</label>
+                        <input type="text" value="${esc(val(p.cep))}" readonly>
+                    </div>
+                    <div class="form-group col-8">
+                    </div>
+                    <div class="form-group col-12">
+                        <label>Endereço:</label>
+                        <input type="text" value="${esc(val(p.endereco))}" readonly>
+                    </div>
+                    <div class="form-group col-4">
+                        <label>Bairro:</label>
+                        <input type="text" value="${esc(val(p.bairro))}" readonly>
+                    </div>
+                    <div class="form-group col-5">
+                        <label>Município:</label>
+                        <input type="text" value="${esc(val(p.municipio))}" readonly>
+                    </div>
+                    <div class="form-group col-3">
+                        <label>Estado:</label>
+                        <input type="text" value="${esc(val(p.estado))}" readonly>
+                    </div>
+                    <div class="form-group col-6">
+                        <label>Telefone/Contato:</label>
+                        <input type="text" value="${esc(val(p.contato))}" readonly>
+                    </div>
+                    <div class="form-group col-6">
+                        <label>E-mail:</label>
+                        <input type="text" value="${esc(val(p.email))}" readonly>
+                    </div>
+                </div>
+
+                <div class="form-section-title">4. Natureza do Requerimento</div>
+                <div class="form-grid">
+                    <div class="form-group col-4">
+                        <label>Natureza:</label>
+                        <input type="text" value="${esc(val(p.natureza))}" readonly>
+                    </div>
+                    <div class="form-group col-4">
+                        <label>Início:</label>
+                        <input type="text" value="${esc(val(p.inicio))}" readonly>
+                    </div>
+                    <div class="form-group col-4">
+                        <label>Fim:</label>
+                        <input type="text" value="${esc(val(p.fim))}" readonly>
+                    </div>
+                    <div class="form-group col-12" style="${p.natureza === 'outros' ? '' : 'display:none;'}">
+                        <label>Descrição (Motivo):</label>
+                        <input type="text" value="${esc(val(p.descricaoOutros))}" readonly>
+                    </div>
+                </div>
+            `;
+
+            // ---- ÁREA DE ANEXOS ----
+            const areaPDF = document.getElementById("pdfAreaDetalhes");
+            const anexos = p.anexos || [];
+
+            areaPDF.textContent = '';
+
+            const makeSection = (titleText) => {
+                const section = document.createElement('div');
+                const header = document.createElement('div');
+                header.className = 'section-header';
+                header.textContent = titleText;
+
+                const table = document.createElement('table');
+                table.className = 'table-anexos';
+
+                const thead = document.createElement('thead');
+                const trh = document.createElement('tr');
+                ['Data', 'Arquivo', 'Ação'].forEach((t) => {
+                    const th = document.createElement('th');
+                    th.textContent = t;
+                    trh.appendChild(th);
+                });
+                thead.appendChild(trh);
+                const tbody = document.createElement('tbody');
+                table.appendChild(thead);
+                table.appendChild(tbody);
+
+                section.appendChild(header);
+                section.appendChild(table);
+                return { section, tbody };
+            };
+
+            const docsSecretaria = anexos.filter(a => a.origem === 'Secretaria');
+            const sec = makeSection('Documentos da Secretaria');
+
+            if (docsSecretaria.length === 0) {
+                const tr = document.createElement('tr');
+                const td = document.createElement('td');
+                td.colSpan = 3;
+                td.style.textAlign = 'center';
+                td.style.color = '#777';
+                td.style.padding = '15px';
+                td.textContent = 'Aguardando análise da secretaria...';
+                tr.appendChild(td);
+                sec.tbody.appendChild(tr);
+            } else {
+                docsSecretaria.forEach(doc => {
+                    const tr = document.createElement('tr');
+                    const tdData = document.createElement('td');
+                    tdData.textContent = doc.data ?? '';
+                    const tdNome = document.createElement('td');
+                    tdNome.textContent = doc.nome ?? '';
+                    const tdAcao = document.createElement('td');
+                    const btn = document.createElement('button');
+                    btn.className = 'btn-outline-sm';
+                    btn.textContent = 'Abrir';
+                    btn.addEventListener('click', () => verPDF(doc.base64));
+                    tdAcao.appendChild(btn);
+                    tr.appendChild(tdData);
+                    tr.appendChild(tdNome);
+                    tr.appendChild(tdAcao);
+                    sec.tbody.appendChild(tr);
+                });
+            }
+
+            const docsServidor = anexos.filter(a => a.origem === 'Servidor');
+            const serv = makeSection('Seus Documentos');
+            if (docsServidor.length === 0) {
+                const tr = document.createElement('tr');
+                const td = document.createElement('td');
+                td.colSpan = 3;
+                td.style.textAlign = 'center';
+                td.style.color = '#777';
+                td.textContent = 'Nenhum documento anexado.';
+                tr.appendChild(td);
+                serv.tbody.appendChild(tr);
+            } else {
+                docsServidor.forEach(doc => {
+                    const tr = document.createElement('tr');
+                    const tdData = document.createElement('td');
+                    tdData.textContent = doc.data ?? '';
+                    const tdNome = document.createElement('td');
+                    tdNome.textContent = doc.nome ?? '';
+                    const tdAcoes = document.createElement('td');
+
+                    const btnAbrir = document.createElement('button');
+                    btnAbrir.className = 'btn-outline-sm';
+                    btnAbrir.textContent = 'Abrir';
+                    btnAbrir.addEventListener('click', () => verPDF(doc.base64));
+
+                    const btnExcluir = document.createElement('button');
+                    btnExcluir.className = 'btn-danger';
+                    btnExcluir.style.marginLeft = '5px';
+                    btnExcluir.style.borderRadius = '4px';
+                    btnExcluir.style.cursor = 'pointer';
+                    btnExcluir.textContent = 'Excluir';
+                    btnExcluir.addEventListener('click', () => excluirAnexo(p.id, doc.id));
+
+                    tdAcoes.appendChild(btnAbrir);
+                    tdAcoes.appendChild(btnExcluir);
+
+                    tr.appendChild(tdData);
+                    tr.appendChild(tdNome);
+                    tr.appendChild(tdAcoes);
+                    serv.tbody.appendChild(tr);
+                });
+            }
+
+            areaPDF.appendChild(sec.section);
+            areaPDF.appendChild(serv.section);
+        }
+
+        function clicarAnexarExtra() {
+            document.getElementById('inputAnexoExtra').click();
+        }
+
+        document.getElementById('inputAnexoExtra').addEventListener('change', async function() {
+            if (this.files.length > 0 && protocoloAtualID) {
+                const file = this.files[0];
+                if (file.size > 3 * 1024 * 1024) {
+                    alert("Arquivo muito grande.");
+                    this.value = ''; 
+                    return;
+                }
+                try {
+                    const base64 = await convertBase64(file);
+                    await API.request(`/api/protocolos/${protocoloAtualID}/anexos`, {
+                        method: 'POST',
+                        body: JSON.stringify({ nome: file.name, base64, origem: 'Servidor' })
+                    });
+                    await abrirDetalhes(protocoloAtualID);
+                    alert("Documento anexado com sucesso!");
+                } catch (e) {
+                    alert("Erro ao anexar.");
+                }
+                this.value = ''; 
+            }
+        });
+
+        async function excluirAnexo(protId, anexoId) {
+            if(!confirm("Tem certeza que deseja excluir este documento?")) return;
+            try {
+                await API.request(`/api/protocolos/${protId}/anexos/${anexoId}`, { method: 'DELETE' });
+                await abrirDetalhes(protId);
+            } catch (e) {
+                alert(e.message);
+            }
+        }
+
+        function voltarAcompanhamento() {
+            pararChatPolling(); // Para o polling do chat
+            document.getElementById("detalheProtocoloPage").style.display = "none";
+            document.getElementById("acompanhamentoPage").style.display = "block";
+            carregarTabela();
+        }
+
+        function toggleSidebar(forceOpen) {
+            const sidebar = document.querySelector('.sidebar');
+            const overlay = document.querySelector('.sidebar-overlay');
+            if (!sidebar) return;
+
+            const shouldOpen = (typeof forceOpen === 'boolean')
+                ? forceOpen
+                : !sidebar.classList.contains('open');
+
+            sidebar.classList.toggle('open', shouldOpen);
+            document.body.classList.toggle('sidebar-open', shouldOpen);
+            if (overlay) overlay.classList.toggle('active', shouldOpen);
+        }
+
+        // Fecha o menu ao clicar em itens (mobile)
+        document.querySelectorAll('.sidebar .menu a').forEach((a) => {
+            a.addEventListener('click', () => toggleSidebar(false));
+        });
+
+        // Fecha o menu ao voltar para desktop
+        window.addEventListener('resize', () => {
+            if (window.innerWidth > 768) toggleSidebar(false);
+        });
+
+        // Fecha com ESC
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') toggleSidebar(false);
+        });
+
+        function toggleProfileMenu() {
+            const menu = document.getElementById("profileMenu");
+            menu.classList.toggle("active");
+            
+            // Fechar menu ao clicar fora
+            document.addEventListener('click', function closeMenu(e) {
+                const profileContainer = document.querySelector('.profile-container');
+                if (!profileContainer.contains(e.target)) {
+                    menu.classList.remove("active");
+                    document.removeEventListener('click', closeMenu);
+                }
+            });
+        }
+
+        let perfilSnapshot = null;
+        let perfilEmEdicao = false;
+        let perfilReturnPageId = 'formPage';
+
+        function detectVisibleMainPageId() {
+            const candidates = ['detalheProtocoloPage', 'acompanhamentoPage', 'formPage'];
+            for (const id of candidates) {
+                const el = document.getElementById(id);
+                if (!el) continue;
+                const visible = getComputedStyle(el).display !== 'none';
+                if (visible) return id;
+            }
+            return 'formPage';
+        }
+
+        function voltarPerfil() {
+            if (perfilEmEdicao) cancelarEdicaoPerfil();
+
+            const perfil = document.getElementById('perfilPage');
+            if (perfil) perfil.style.display = 'none';
+
+            const targetId = perfilReturnPageId || 'formPage';
+            const target = document.getElementById(targetId) || document.getElementById('formPage');
+            if (target) target.style.display = 'block';
+
+            if (targetId === 'acompanhamentoPage' && typeof carregarTabela === 'function') {
+                carregarTabela();
+            }
+        }
+
+        function setInputValue(id, value) {
+            const el = document.getElementById(id);
+            if (!el) return;
+            el.value = value ?? '';
+        }
+
+        function applyPerfilToForm(p) {
+            setInputValue('perfil_nome', p?.nome || '');
+            setInputValue('perfil_email', p?.email || '');
+            setInputValue('perfil_nascimento', p?.nascimento || '');
+            setInputValue('perfil_cpf', p?.cpf || '');
+            setInputValue('perfil_rg', p?.rg || '');
+            setInputValue('perfil_endereco', p?.endereco || '');
+            setInputValue('perfil_bairro', p?.bairro || '');
+            setInputValue('perfil_municipio', p?.municipio || '');
+            setInputValue('perfil_estado', p?.estado || '');
+            setInputValue('perfil_cep', p?.cep || '');
+            setInputValue('perfil_contato', p?.contato || '');
+        }
+
+        function setPerfilEditMode(on) {
+            perfilEmEdicao = !!on;
+
+            const editableIds = [
+                'perfil_email',
+                'perfil_endereco',
+                'perfil_bairro',
+                'perfil_municipio',
+                'perfil_estado',
+                'perfil_cep',
+                'perfil_contato',
+            ];
+
+            editableIds.forEach((id) => {
+                const el = document.getElementById(id);
+                if (el) el.disabled = !perfilEmEdicao;
+            });
+
+            const btnEditar = document.getElementById('btnEditarPerfil');
+            const btnSalvar = document.getElementById('btnSalvarPerfil');
+            const btnCancelar = document.getElementById('btnCancelarPerfil');
+            if (btnEditar) btnEditar.style.display = perfilEmEdicao ? 'none' : 'inline-flex';
+            if (btnSalvar) btnSalvar.style.display = perfilEmEdicao ? 'inline-flex' : 'none';
+            if (btnCancelar) btnCancelar.style.display = perfilEmEdicao ? 'inline-flex' : 'none';
+        }
+
+        async function carregarPerfilServidor() {
+            const r = await API.request('/api/servidor/profile');
+            const p = r.profile || {};
+            perfilSnapshot = structuredClone(p);
+            applyPerfilToForm(p);
+            setPerfilEditMode(false);
+        }
+
+        function abrirPerfil(e) {
+            e.preventDefault();
+            document.getElementById("profileMenu").classList.remove("active");
+
+            perfilReturnPageId = detectVisibleMainPageId();
+
+            document.getElementById("formPage").style.display = "none";
+            document.getElementById("acompanhamentoPage").style.display = "none";
+            document.getElementById("detalheProtocoloPage").style.display = "none";
+            document.getElementById("perfilPage").style.display = "block";
+
+            carregarPerfilServidor().catch((err) => alert(err?.message || 'Erro ao carregar perfil.'));
+        }
+
+        function habilitarEdicaoPerfil() {
+            setPerfilEditMode(true);
+        }
+
+        function cancelarEdicaoPerfil() {
+            if (perfilSnapshot) applyPerfilToForm(perfilSnapshot);
+            setPerfilEditMode(false);
+        }
+
+        async function salvarPerfil() {
+            // Validar email antes de salvar
+            const emailInput = document.getElementById('perfil_email');
+            if (emailInput) {
+                const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                if (emailInput.value && !emailRegex.test(emailInput.value)) {
+                    alert('Por favor, insira um e-mail válido.');
+                    emailInput.focus();
+                    return;
+                }
+            }
+
+            const body = {
+                email: document.getElementById('perfil_email')?.value || null,
+                endereco: document.getElementById('perfil_endereco')?.value || null,
+                bairro: document.getElementById('perfil_bairro')?.value || null,
+                municipio: document.getElementById('perfil_municipio')?.value || null,
+                estado: document.getElementById('perfil_estado')?.value || null,
+                cep: document.getElementById('perfil_cep')?.value || null,
+                contato: document.getElementById('perfil_contato')?.value || null,
+            };
+
+            try {
+                await API.request('/api/servidor/profile', {
+                    method: 'PATCH',
+                    body: JSON.stringify(body)
+                });
+                await carregarPerfilServidor();
+                // Atualiza também os campos do requerimento com os dados recém-salvos.
+                await prefillFromProfile({ overwrite: true });
+                alert('Perfil atualizado com sucesso!');
+            } catch (e) {
+                alert(e.message || 'Erro ao salvar perfil.');
+            }
+        }
+
+        // ===== FUNÇÕES DE FORMATAÇÃO =====
+        function formatarCPF(input) {
+            let valor = input.value.replace(/\D/g, '');
+            if (valor.length > 11) valor = valor.slice(0, 11);
+            valor = valor.replace(/(\d{3})(\d)/, '$1.$2');
+            valor = valor.replace(/(\d{3})(\d)/, '$1.$2');
+            valor = valor.replace(/(\d{3})(\d{1,2})$/, '$1-$2');
+            input.value = valor;
+        }
+
+        function formatarCEP(input) {
+            let valor = input.value.replace(/\D/g, '');
+            if (valor.length > 8) valor = valor.slice(0, 8);
+            valor = valor.replace(/(\d{5})(\d)/, '$1-$2');
+            input.value = valor;
+        }
+
+        function formatarTelefone(input) {
+            let valor = input.value.replace(/\D/g, '');
+            if (valor.length > 11) valor = valor.slice(0, 11);
+            if (valor.length > 10) {
+                valor = valor.replace(/(\d{2})(\d{5})(\d{4})/, '($1) $2-$3');
+            } else if (valor.length > 6) {
+                valor = valor.replace(/(\d{2})(\d{4})(\d{0,4})/, '($1) $2-$3');
+            } else if (valor.length > 2) {
+                valor = valor.replace(/(\d{2})(\d{0,5})/, '($1) $2');
+            }
+            input.value = valor;
+        }
+
+        function validarEmail(input) {
+            const email = input.value;
+            const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (email && !regex.test(email)) {
+                input.style.borderColor = '#dc3545';
+            } else {
+                input.style.borderColor = '';
+            }
+        }
+
+        let cepTimeout = null;
+        async function buscarCEP(cep) {
+            const cepLimpo = cep.replace(/\D/g, '');
+            if (cepLimpo.length !== 8) return;
+
+            // Debounce para não fazer muitas requisições
+            if (cepTimeout) clearTimeout(cepTimeout);
+            cepTimeout = setTimeout(async () => {
+                try {
+                    const response = await fetch(`https://viacep.com.br/ws/${cepLimpo}/json/`);
+                    const data = await response.json();
+                    
+                    if (data.erro) {
+                        console.warn('CEP não encontrado');
+                        return;
+                    }
+
+                    // Preencher campos automaticamente
+                    const endereco = document.getElementById('perfil_endereco');
+                    const bairro = document.getElementById('perfil_bairro');
+                    const municipio = document.getElementById('perfil_municipio');
+                    const estado = document.getElementById('perfil_estado');
+
+                    if (endereco && data.logradouro) endereco.value = data.logradouro;
+                    if (bairro && data.bairro) bairro.value = data.bairro;
+                    if (municipio && data.localidade) municipio.value = data.localidade;
+                    if (estado && data.uf) estado.value = data.uf;
+                } catch (error) {
+                    console.error('Erro ao buscar CEP:', error);
+                }
+            }, 500);
+        }
+
+        function logout(e) {
+            e.preventDefault();
+            window.location.href = 'login-servidor.html';
+        }
+
+        // =========================================
+        // FUNÇÕES DO CHAT
+        // =========================================
+        let chatProtocoloId = null;
+        let chatPollingInterval = null;
+
+        function escapeHtmlChat(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        function formatChatTime(dateStr) {
+            const date = new Date(dateStr);
+            const now = new Date();
+            const isToday = date.toDateString() === now.toDateString();
+            
+            const time = date.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+            
+            if (isToday) {
+                return time;
+            }
+            
+            const dateFormatted = date.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' });
+            return `${dateFormatted} ${time}`;
+        }
+
+        function renderChatMessage(msg, currentRole) {
+            const isSent = msg.senderRole === currentRole;
+            const div = document.createElement('div');
+            div.className = `chat-message ${isSent ? 'sent' : 'received'}`;
+            div.dataset.messageId = msg.id;
+            
+            const senderLabel = isSent ? 'Você' : msg.senderName;
+            
+            div.innerHTML = `
+                <div class="chat-message-sender">${escapeHtmlChat(senderLabel)}</div>
+                <div class="chat-message-text">${escapeHtmlChat(msg.message)}</div>
+                <div class="chat-message-time">${formatChatTime(msg.createdAt)}</div>
+            `;
+            
+            return div;
+        }
+
+        async function carregarMensagensChat() {
+            if (!chatProtocoloId) return;
+            
+            try {
+                const r = await API.request(`/api/protocolos/${chatProtocoloId}/messages`);
+                const messages = r.messages || [];
+                
+                const container = document.getElementById('chatMessages');
+                if (!container) return;
+                
+                // Verifica se precisa atualizar (comparando quantidade)
+                const currentCount = container.querySelectorAll('.chat-message').length;
+                if (currentCount === messages.length && messages.length > 0) {
+                    return; // Sem novas mensagens
+                }
+                
+                container.innerHTML = '';
+                
+                messages.forEach(msg => {
+                    const msgEl = renderChatMessage(msg, 'servidor');
+                    container.appendChild(msgEl);
+                });
+                
+                // Scroll para o final
+                container.scrollTop = container.scrollHeight;
+                
+                // Esconde badge de não lidas
+                const badge = document.getElementById('chatUnreadBadge');
+                if (badge) badge.style.display = 'none';
+                
+            } catch (err) {
+                console.error('Erro ao carregar mensagens:', err);
+            }
+        }
+
+        async function enviarMensagemChat() {
+            if (!chatProtocoloId) return;
+            
+            const input = document.getElementById('chatInput');
+            const btn = document.getElementById('chatSendBtn');
+            const message = input?.value?.trim();
+            
+            if (!message) return;
+            
+            btn.disabled = true;
+            
+            try {
+                await API.request(`/api/protocolos/${chatProtocoloId}/messages`, {
+                    method: 'POST',
+                    body: JSON.stringify({ message })
+                });
+                
+                input.value = '';
+                input.style.height = 'auto';
+                
+                // Recarrega mensagens
+                await carregarMensagensChat();
+                
+            } catch (err) {
+                alert(err.message || 'Erro ao enviar mensagem');
+            } finally {
+                btn.disabled = false;
+                input.focus();
+            }
+        }
+
+        function handleChatKeydown(e) {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                enviarMensagemChat();
+            }
+        }
+
+        function iniciarChatPolling() {
+            pararChatPolling();
+            // Atualiza a cada 10 segundos
+            chatPollingInterval = setInterval(carregarMensagensChat, 10000);
+        }
+
+        function pararChatPolling() {
+            if (chatPollingInterval) {
+                clearInterval(chatPollingInterval);
+                chatPollingInterval = null;
+            }
+        }
+
+        function inicializarChat(protocoloId) {
+            chatProtocoloId = protocoloId;
+            
+            // Limpa chat anterior
+            const container = document.getElementById('chatMessages');
+            if (container) container.innerHTML = '<div class="chat-loading">Carregando mensagens...</div>';
+            
+            const input = document.getElementById('chatInput');
+            if (input) input.value = '';
+            
+            // Carrega mensagens e inicia polling
+            carregarMensagensChat();
+            iniciarChatPolling();
+        }
+
+        // Inicializa sessão e abre acompanhamento automaticamente
+        (async () => {
+            try {
+                await ensureServidorSession();
+                await prefillFromProfile();
+            } catch (e) {
+                // ensureServidorSession já redireciona
+            }
+        })();
+    </script>
+
+</body>
+</html>

@@ -1,0 +1,1104 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Cadastro do Cidadão - Protocolo Online</title>
+  <style>
+    :root {
+      --primary: #0a3d62;
+      --primary-hover: #074069;
+      --bg-soft: #e6ecf5;
+      --border: #c8d6e5;
+      --danger: #dc3545;
+      --radius: 12px;
+    }
+
+    body {
+      font-family: 'Segoe UI', Arial, sans-serif;
+      background: linear-gradient(135deg, #0a3d62, #3c6382);
+      margin: 0;
+      padding: 0;
+      min-height: 100vh;
+    }
+
+    .container {
+      width: 980px;
+      max-width: calc(100% - 40px);
+      background: #ffffff;
+      padding: 28px;
+      border-radius: 20px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+    }
+
+    .brand {
+      display: flex;
+      justify-content: center;
+      margin-bottom: 10px;
+    }
+    .brand img {
+      height: 80px;
+      width: auto;
+      max-width: 280px;
+      object-fit: contain;
+    }
+
+    .brand-text {
+      text-align: center;
+      margin: -4px 0 16px;
+    }
+    .brand-title {
+      margin: 0;
+      font-size: 16px;
+      font-weight: 800;
+      color: var(--primary);
+      letter-spacing: 0.2px;
+    }
+    .brand-subtitle {
+      margin: 4px 0 0;
+      font-size: 12px;
+      color: rgba(0,0,0,0.55);
+    }
+
+    h2 {
+      margin: 8px 0 10px;
+      text-align: center;
+      color: var(--primary);
+      font-size: 18px;
+      line-height: 1.2;
+      font-weight: 800;
+    }
+
+    .hint {
+      text-align: center;
+      color: rgba(0,0,0,0.6);
+      font-size: 13px;
+      margin: 0 0 18px;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(12, 1fr);
+      gap: 14px;
+    }
+
+    .col-12 { grid-column: span 12; }
+    .col-8 { grid-column: span 8; }
+    .col-6 { grid-column: span 6; }
+    .col-4 { grid-column: span 4; }
+    .col-3 { grid-column: span 3; }
+
+    .section {
+      margin: 18px 0 10px;
+      padding: 10px 12px;
+      border-radius: 10px;
+      background: rgba(10, 61, 98, 0.06);
+      color: var(--primary);
+      font-weight: 800;
+      font-size: 13px;
+    }
+
+    /* Floating label Material (notch) */
+    .field {
+      position: relative;
+      width: 100%;
+    }
+    .field input, .field select {
+      width: 100%;
+      padding: 18px 12px 10px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      font-size: 14px;
+      box-sizing: border-box;
+      outline: none;
+      background: #ffffff;
+    }
+    .field input::placeholder {
+      color: transparent;
+    }
+    .field label {
+      position: absolute;
+      left: 12px;
+      top: 18px;
+      transform: none;
+      color: rgba(10, 61, 98, 0.75);
+      font-size: 14px;
+      line-height: 1;
+      padding: 0 6px;
+      background: transparent;
+      pointer-events: none;
+      transition: 0.15s ease;
+    }
+    .field input:focus, .field select:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(10, 61, 98, 0.12);
+    }
+    .field input:focus + label,
+    .field input:not(:placeholder-shown) + label,
+    .field select:focus + label,
+    .field select:required:valid + label {
+      top: 0;
+      transform: translateY(-50%);
+      font-size: 12px;
+      color: var(--primary);
+      background: #ffffff;
+    }
+
+    /* Autofill / sugestão de senha (Chrome/Google) */
+    .field input:-webkit-autofill + label,
+    .field input:autofill + label,
+    .field input.has-value + label {
+      top: 0;
+      transform: translateY(-50%);
+      font-size: 12px;
+      color: var(--primary);
+      background: #ffffff;
+    }
+
+    .field.invalid input, .field.invalid select {
+      border-color: var(--danger);
+      box-shadow: 0 0 0 3px rgba(220, 53, 69, 0.12);
+    }
+    .field-error {
+      margin-top: 6px;
+      font-size: 12px;
+      color: var(--danger);
+      min-height: 14px;
+    }
+
+    .form-error {
+      margin: 0 0 14px;
+      padding: 10px 12px;
+      border: 1px solid rgba(220, 53, 69, 0.35);
+      background: rgba(220, 53, 69, 0.08);
+      border-radius: var(--radius);
+      color: #7a1e27;
+      font-size: 13px;
+      display: none;
+    }
+    .form-error.active {
+      display: block;
+    }
+
+    .password-field {
+      position: relative;
+      width: 100%;
+    }
+    .password-field.field input {
+      padding-right: 44px;
+    }
+    .password-field .toggle-password {
+      /* Alinha com a linha de digitação (padding-top grande por causa do label) */
+      top: 28px;
+    }
+    .toggle-password {
+      position: absolute;
+      right: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      cursor: pointer;
+      color: var(--primary);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: none;
+      border: none;
+      padding: 0;
+      width: 28px;
+      height: 28px;
+      line-height: 0;
+    }
+    .toggle-password svg {
+      width: 20px;
+      height: 20px;
+      fill: var(--primary);
+      transition: fill 0.3s;
+    }
+    .toggle-password:hover svg {
+      fill: var(--primary-hover);
+    }
+
+    .actions {
+      display: flex;
+      gap: 10px;
+      margin-top: 18px;
+      flex-wrap: wrap;
+    }
+
+    .consents {
+      margin: 8px 0 0;
+      padding: 0;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      background: #ffffff;
+      overflow: hidden;
+      transition: 0.15s ease;
+    }
+    .consents.invalid {
+      border-color: var(--danger);
+      box-shadow: 0 0 0 3px rgba(220, 53, 69, 0.12);
+    }
+    .consents .lgpd-note {
+      margin: 0 0 10px;
+      font-size: 13px;
+      color: rgba(0,0,0,0.72);
+      line-height: 1.4;
+      font-weight: 600;
+    }
+    .checkbox {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      font-size: 14px;
+      color: rgba(0,0,0,0.8);
+      margin: 0;
+    }
+    .checkbox input { margin-top: 3px; }
+    .consents .field-error { margin: 10px 14px 12px; }
+
+    .consent-item {
+      padding: 12px 14px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .consent-item:last-child { border-bottom: none; }
+    .consent-item .checkbox span { font-weight: 400; color: rgba(0,0,0,0.82); }
+
+    .link-terms {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 13px;
+      color: var(--primary);
+      background: none;
+      border: none;
+      padding: 0;
+      cursor: pointer;
+      text-decoration: underline;
+      margin-top: 10px;
+    }
+
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.5);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      z-index: 9999;
+    }
+    .modal-overlay.active { display: flex; }
+    .modal {
+      background: #fff;
+      border-radius: 12px;
+      max-width: 720px;
+      width: 100%;
+      max-height: 90vh;
+      overflow: auto;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.25);
+      padding: 20px 22px;
+    }
+    .modal header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+    .modal h3 { margin: 0; color: var(--primary); font-size: 18px; }
+    .modal .close-btn {
+      background: none;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 6px 10px;
+      cursor: pointer;
+      font-weight: 700;
+    }
+    .modal .terms-list { margin: 0; padding-left: 18px; color: rgba(0,0,0,0.82); font-size: 14px; }
+    .modal .terms-list li { margin: 8px 0; }
+
+    .btn {
+      padding: 12px;
+      border-radius: var(--radius);
+      font-size: 15px;
+      cursor: pointer;
+      transition: 0.2s;
+      font-weight: 800;
+      border: 1px solid transparent;
+      flex: 1;
+      min-width: 220px;
+    }
+    .btn:disabled {
+      opacity: 0.7;
+      cursor: not-allowed;
+    }
+    .btn-primary {
+      background: var(--primary);
+      color: #ffffff;
+    }
+    .btn-primary:hover {
+      background: var(--primary-hover);
+    }
+    .btn-secondary {
+      background: #ffffff;
+      color: var(--primary);
+      border-color: var(--border);
+    }
+    .btn-secondary:hover {
+      background: rgba(10, 61, 98, 0.06);
+      border-color: rgba(10, 61, 98, 0.35);
+    }
+
+    @media (max-width: 900px) {
+      .col-8, .col-6, .col-4, .col-3 { grid-column: span 12; }
+      .btn { min-width: 160px; }
+    }
+
+    /* Layout de página com rodapé fixo no fim */
+    .page {
+      width: 100%;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+    .page-content {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    /* Rodapé */
+    .page-footer {
+      padding: 16px 32px;
+      font-size: 12px;
+      color: rgba(255,255,255,0.95);
+      line-height: 1.5;
+      backdrop-filter: blur(8px);
+      background: linear-gradient(180deg, rgba(10,61,98,0.95), rgba(10,61,98,0.98));
+      border-top: 1px solid rgba(255,255,255,0.15);
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      justify-content: space-between;
+      gap: 20px;
+      width: 100%;
+      box-sizing: border-box;
+    }
+
+    .footer-main {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 6px;
+      text-align: left;
+    }
+
+    .footer-copyright {
+      font-size: 12px;
+      font-weight: 600;
+      color: #ffffff;
+      letter-spacing: 0.2px;
+    }
+
+    .footer-terms {
+      font-size: 11px;
+      color: rgba(255,255,255,0.85);
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      flex-wrap: wrap;
+      justify-content: flex-start;
+    }
+
+    .footer-terms a {
+      color: #38ada9;
+      font-weight: 600;
+      text-decoration: none;
+      transition: color 0.2s;
+    }
+
+    .footer-terms a:hover {
+      color: #5dd5cf;
+      text-decoration: underline;
+    }
+
+    .footer-dev {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-shrink: 0;
+    }
+
+    .footer-dev-text {
+      font-size: 11px;
+      color: rgba(255,255,255,0.7);
+    }
+
+    .footer-dev-logo {
+      height: 64px;
+      width: auto;
+      object-fit: contain;
+      filter: brightness(1.1);
+      transition: transform 0.2s;
+    }
+
+    .footer-dev-logo:hover {
+      transform: scale(1.05);
+    }
+
+    @media (max-width: 640px) {
+      .page-footer { 
+        padding: 14px 16px; 
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 12px;
+      }
+      .footer-copyright { font-size: 11px; }
+      .footer-terms { font-size: 10px; }
+      .footer-dev { align-self: flex-end; }
+      
+      .page-content {
+        padding: 15px 10px;
+      }
+      
+      .container {
+        padding: 22px 18px;
+        border-radius: 16px;
+      }
+      
+      .brand img {
+        height: 70px;
+      }
+      
+      .brand-title {
+        font-size: 14px;
+      }
+      
+      .brand-subtitle {
+        font-size: 11px;
+      }
+      
+      h2 {
+        font-size: 16px;
+      }
+      
+      .hint {
+        font-size: 12px;
+      }
+      
+      .section {
+        font-size: 12px;
+        padding: 8px 10px;
+        margin: 14px 0 8px;
+      }
+      
+      .grid {
+        gap: 12px;
+      }
+      
+      .field input, 
+      .field select {
+        padding: 16px 10px 8px;
+        font-size: 14px;
+      }
+      
+      .field label {
+        font-size: 13px;
+      }
+      
+      .btn {
+        padding: 14px 20px;
+        font-size: 14px;
+        min-width: unset;
+        width: 100%;
+      }
+      
+      .actions {
+        flex-direction: column;
+        gap: 10px;
+      }
+    }
+    
+    @media (max-width: 480px) {
+      .container {
+        padding: 18px 15px;
+        border-radius: 14px;
+      }
+      
+      .brand img {
+        height: 60px;
+      }
+      
+      h2 {
+        font-size: 15px;
+        margin: 6px 0 8px;
+      }
+      
+      .field input, 
+      .field select {
+        padding: 14px 10px 6px;
+        font-size: 13px;
+      }
+      
+      .field label {
+        font-size: 12px;
+        left: 10px;
+      }
+      
+      .btn {
+        padding: 12px 16px;
+        font-size: 13px;
+      }
+    }
+    
+    @media (max-width: 360px) {
+      .container {
+        padding: 16px 12px;
+      }
+      
+      .brand img {
+        height: 55px;
+      }
+      
+      .brand-title {
+        font-size: 13px;
+      }
+      
+      .grid {
+        gap: 10px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <div class="page-content">
+      <div class="container">
+    <div class="brand">
+      <img src="/assets/logo_sec.png" alt="Secretaria de Educação">
+    </div>
+    <div class="brand-text">
+      <div class="brand-title">Sistema de Protocolos – SEMED</div>
+      <div class="brand-subtitle">Secretaria de Educação</div>
+    </div>
+
+    <h2>Crie sua conta</h2>
+    <div class="hint">Use este cadastro para abrir e acompanhar protocolos.</div>
+
+    <div class="form-error" id="formError" role="status" aria-live="polite"></div>
+
+    <form id="form" autocomplete="on">
+      <div class="section">Dados do servidor</div>
+      <div class="grid">
+        <div class="col-12">
+          <div class="field">
+            <input id="nome" type="text" placeholder=" " autocomplete="name" required>
+            <label for="nome">Nome completo</label>
+            <div class="field-error" data-for="nome"></div>
+          </div>
+        </div>
+        <div class="col-6">
+          <div class="field">
+            <input id="cpf" type="text" placeholder=" " inputmode="numeric" required>
+            <label for="cpf">CPF</label>
+            <div class="field-error" data-for="cpf"></div>
+          </div>
+        </div>
+        <div class="col-6">
+          <div class="field">
+            <input id="nascimento" type="date" placeholder=" " required>
+            <label for="nascimento">Data de nascimento</label>
+            <div class="field-error" data-for="nascimento"></div>
+          </div>
+        </div>
+        <div class="col-6">
+          <div class="field">
+            <input id="email" type="email" placeholder=" " autocomplete="email" inputmode="email" required>
+            <label for="email">E-mail</label>
+            <div class="field-error" data-for="email"></div>
+          </div>
+        </div>
+        <div class="col-6">
+          <div class="field">
+            <input id="telefone" type="tel" placeholder=" " autocomplete="tel" inputmode="tel" required>
+            <label for="telefone">Telefone</label>
+            <div class="field-error" data-for="telefone"></div>
+          </div>
+        </div>
+        <div class="col-6">
+          <div class="password-field field">
+            <input id="senha" type="password" placeholder=" " autocomplete="new-password" required>
+            <label for="senha">Senha</label>
+            <div class="field-error" data-for="senha"></div>
+            <button class="toggle-password" type="button" aria-label="Mostrar/ocultar senha" onclick="toggleSenha('senha', this)">
+              <svg viewBox="0 0 24 24"><path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/></svg>
+            </button>
+          </div>
+        </div>
+        <div class="col-6">
+          <div class="password-field field">
+            <input id="senha2" type="password" placeholder=" " autocomplete="new-password" required>
+            <label for="senha2">Confirmar senha</label>
+            <div class="field-error" data-for="senha2"></div>
+            <button class="toggle-password" type="button" aria-label="Mostrar/ocultar confirmação" onclick="toggleSenha('senha2', this)">
+              <svg viewBox="0 0 24 24"><path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/></svg>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div class="section">Termos e consentimentos</div>
+      <div class="consents" id="consentBlock">
+        <div class="consent-item">
+          <label class="checkbox" for="veracidade">
+            <input id="veracidade" type="checkbox" required>
+            <span>Declaro que as informações fornecidas são verdadeiras.</span>
+          </label>
+        </div>
+        <div class="consent-item">
+          <label class="checkbox" for="termos">
+            <input id="termos" type="checkbox" required>
+            <span>Li e aceito os Termos de Uso</span>
+          </label>
+          <button type="button" class="link-terms" onclick="openTermos()">Ver Termos de Uso</button>
+        </div>
+        <div class="consent-item">
+          <label class="checkbox" for="privacidade">
+            <input id="privacidade" type="checkbox" required>
+            <span>Li e aceito a Política de Privacidade</span>
+          </label>
+          <button type="button" class="link-terms" onclick="openPrivacidade()">Ver Política de Privacidade</button>
+        </div>
+        <div class="field-error" data-for="consent"></div>
+      </div>
+
+      <div class="actions">
+        <button class="btn btn-primary" id="btnSubmit" type="submit">Cadastrar</button>
+        <button class="btn btn-secondary" type="button" onclick="voltar()">Voltar para o login</button>
+      </div>
+    </form>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal-overlay" id="modalTermos" role="dialog" aria-modal="true" aria-labelledby="modalTermosTitle">
+    <div class="modal">
+      <header>
+        <h3 id="modalTermosTitle">Termos de Uso do Sistema de Protocolos</h3>
+        <button type="button" class="close-btn" onclick="closeTermos()">Fechar</button>
+      </header>
+      <p style="margin: 0 0 10px; color: rgba(0,0,0,0.78); font-size: 14px;">O presente documento estabelece os Termos de Uso do Sistema de Protocolos Eletrônicos da Prefeitura de Demerval Lobão, destinado ao registro, acompanhamento e tramitação de solicitações administrativas realizadas pelos cidadãos.</p>
+      <ol class="terms-list">
+        <li><strong>Finalidade do Sistema</strong>: permitir o registro, acompanhamento e tramitação de solicitações administrativas de forma eletrônica.</li>
+        <li><strong>Responsabilidades do Usuário</strong>: o usuário compromete-se a fornecer informações verdadeiras, manter o sigilo de suas credenciais de acesso e acompanhar o andamento de suas solicitações por meio do sistema.</li>
+        <li><strong>Responsabilidades da Prefeitura</strong>: a Prefeitura compromete-se a processar as demandas conforme os prazos e normas aplicáveis, adotando medidas razoáveis de segurança para proteção das informações.</li>
+        <li><strong>Indisponibilidade do Sistema</strong>: em caso de indisponibilidade temporária do sistema por motivos técnicos ou de manutenção, a Prefeitura envidará esforços para restabelecer o serviço com a maior brevidade possível.</li>
+        <li><strong>Uso Indevido</strong>: é vedada a utilização do sistema para fins ilícitos, ofensivos ou que comprometam a integridade, segurança ou funcionamento da plataforma.</li>
+        <li><strong>Aceitação dos Termos</strong>: ao prosseguir, o usuário declara que leu, compreendeu e concorda integralmente com estes Termos de Uso.</li>
+      </ol>
+      <label class="checkbox" style="margin: 12px 0 0;" for="modalTermosAceite">
+        <input id="modalTermosAceite" type="checkbox">
+        <span>Li e aceito os Termos de Uso</span>
+      </label>
+    </div>
+  </div>
+
+  <div class="modal-overlay" id="modalPrivacidade" role="dialog" aria-modal="true" aria-labelledby="modalPrivacidadeTitle">
+    <div class="modal">
+      <header>
+        <h3 id="modalPrivacidadeTitle">Política de Privacidade do Sistema de Protocolos Eletrônicos</h3>
+        <button type="button" class="close-btn" onclick="closePrivacidade()">Fechar</button>
+      </header>
+      <p style="margin: 0 0 10px; color: rgba(0,0,0,0.78); font-size: 14px;">A Prefeitura de Demerval Lobão respeita a privacidade dos cidadãos e realiza o tratamento de dados pessoais em conformidade com a Lei nº 13.709/2018 – Lei Geral de Proteção de Dados (LGPD).</p>
+      <ol class="terms-list">
+        <li><strong>Dados Pessoais Coletados</strong>: Nome completo; CPF; endereço de e-mail; telefone; informações fornecidas no cadastro e na abertura de protocolos; dados técnicos, como data, hora e endereço IP de acesso.</li>
+        <li><strong>Finalidade do Tratamento</strong>: identificação do usuário; registro, tramitação e acompanhamento de protocolos administrativos; comunicação entre a Prefeitura e o cidadão; cumprimento de obrigações legais e administrativas.</li>
+        <li><strong>Compartilhamento de Dados</strong>: os dados poderão ser compartilhados internamente, apenas com setores e servidores municipais responsáveis pelo atendimento, observando o princípio da necessidade. Não há compartilhamento com terceiros, salvo obrigação legal ou determinação judicial.</li>
+        <li><strong>Segurança das Informações</strong>: adoção de medidas técnicas e administrativas razoáveis para proteger os dados contra acessos não autorizados, perda, alteração ou divulgação indevida.</li>
+        <li><strong>Direitos do Titular dos Dados</strong>: solicitar confirmação de tratamento, acesso, correção/atualização e informações sobre o uso dos dados, por meio dos canais oficiais da Prefeitura.</li>
+        <li><strong>Armazenamento dos Dados</strong>: os dados serão armazenados pelo período necessário ao cumprimento das finalidades legais, administrativas e regulatórias.</li>
+        <li><strong>Alterações nesta Política</strong>: a política pode ser atualizada a qualquer momento para adequação a alterações legais ou operacionais.</li>
+        <li><strong>Aceitação</strong>: ao utilizar o Sistema de Protocolos Eletrônicos, o usuário declara ciência e concordância com esta Política de Privacidade.</li>
+      </ol>
+      <label class="checkbox" style="margin: 12px 0 0;" for="modalPrivacidadeAceite">
+        <input id="modalPrivacidadeAceite" type="checkbox">
+        <span>Li e aceito a Política de Privacidade</span>
+      </label>
+    </div>
+  </div>
+
+  <script>
+    const API = {
+      async request(path, options = {}) {
+        const res = await fetch(path, {
+          headers: { 'Content-Type': 'application/json', ...(options.headers || {}) },
+          credentials: 'include',
+          ...options,
+        });
+        const data = await res.json().catch(() => ({}));
+        if (!res.ok || data.ok === false) {
+          throw new Error(data.error || `Erro HTTP ${res.status}`);
+        }
+        return data;
+      }
+    };
+
+    function setButtonLoading(btn, isLoading, loadingText = 'Cadastrando...') {
+      if (!btn) return;
+      if (isLoading) {
+        btn.dataset.originalText = btn.dataset.originalText || btn.textContent;
+        btn.textContent = loadingText;
+        btn.disabled = true;
+      } else {
+        btn.textContent = btn.dataset.originalText || btn.textContent;
+        btn.disabled = false;
+      }
+    }
+
+    function setFormError(message) {
+      const el = document.getElementById('formError');
+      if (!el) return;
+      if (message) {
+        el.textContent = message;
+        el.classList.add('active');
+      } else {
+        el.textContent = '';
+        el.classList.remove('active');
+      }
+    }
+
+    function setFieldError(inputId, message) {
+      const input = document.getElementById(inputId);
+      if (!input) return;
+      const field = input.closest('.field');
+      if (!field) return;
+      const err = field.querySelector(`.field-error[data-for="${CSS.escape(inputId)}"]`);
+      field.classList.add('invalid');
+      input.setAttribute('aria-invalid', 'true');
+      if (err) err.textContent = message || '';
+    }
+
+    function setConsentError(message) {
+      const block = document.getElementById('consentBlock');
+      const err = document.querySelector('.field-error[data-for="consent"]');
+      if (!block || !err) return;
+      if (message) {
+        block.classList.add('invalid');
+        err.textContent = message;
+      } else {
+        block.classList.remove('invalid');
+        err.textContent = '';
+      }
+    }
+
+    function isValidEmail(email) {
+      const v = String(email || '').trim();
+      // Checagem simples de formato: algo@algo.dominio
+      return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v);
+    }
+
+    function getPasswordError(pw) {
+      const v = String(pw || '');
+      if (v.length < 8) return 'Use no minimo 8 caracteres.';
+      if (!/[A-Za-z]/.test(v)) return 'Use pelo menos uma letra.';
+      if (!/[0-9]/.test(v)) return 'Use pelo menos um numero.';
+      if (/\s/.test(v)) return 'Nao use espacos na senha.';
+      return '';
+    }
+
+    function clearFieldError(inputId) {
+      const input = document.getElementById(inputId);
+      if (!input) return;
+      const field = input.closest('.field');
+      if (!field) return;
+      const err = field.querySelector(`.field-error[data-for="${CSS.escape(inputId)}"]`);
+      field.classList.remove('invalid');
+      input.removeAttribute('aria-invalid');
+      if (err) err.textContent = '';
+    }
+
+    // Alternar visibilidade da senha e ícone (mesma lógica da tela de login)
+    function toggleSenha(id, el) {
+      const input = document.getElementById(id);
+
+      const iconShow = '<svg viewBox="0 0 24 24"><path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/></svg>';
+      const iconHide = '<svg viewBox="0 0 24 24"><path d="M12 7c2.76 0 5 2.24 5 5 0 .65-.13 1.26-.36 1.83l2.92 2.92c1.51-1.26 2.7-2.89 3.43-4.75-1.73-4.39-6-7.5-11-7.5-1.4 0-2.74.25-4.01.7l2.16 2.16C10.74 7.13 11.35 7 12 7zM2 4.27l2.28 2.28.46.46A11.804 11.804 0 0 0 1 12c1.73 4.39 6 7.5 11 7.5 1.55 0 3.03-.3 4.38-.84l.42.42L19.73 22 21 20.73 3.27 3 2 4.27zM7.53 9.8l1.55 1.55c-.05.21-.08.43-.08.65 0 1.66 1.34 3 3 3 .22 0 .44-.03.65-.08l1.55 1.55c-.67.33-1.41.53-2.2.53-2.76 0-5-2.24-5-5 0-.79.2-1.53.53-2.2zm4.31-.78l3.15 3.15.02-.16c0-1.66-1.34-3-3-3l-.17.01z"/></svg>';
+
+      if (!input) return;
+
+      if (input.type === 'password') {
+        input.type = 'text';
+        el.innerHTML = iconHide;
+      } else {
+        input.type = 'password';
+        el.innerHTML = iconShow;
+      }
+    }
+
+    document.querySelectorAll('.field input, .field select').forEach((input) => {
+      input.addEventListener('input', () => {
+        clearFieldError(input.id);
+        setFormError('');
+        if (input.matches('input')) input.classList.toggle('has-value', !!input.value);
+      });
+      input.addEventListener('change', () => {
+        clearFieldError(input.id);
+        setFormError('');
+        if (input.matches('input')) input.classList.toggle('has-value', !!input.value);
+      });
+    });
+
+    // Mascara CPF durante a digitação (000.000.000-00)
+    function formatCpf(value) {
+      const digits = String(value || '').replace(/\D/g, '').slice(0, 11);
+      const parts = [];
+      if (digits.length > 0) parts.push(digits.slice(0, 3));
+      if (digits.length >= 4) parts.push(digits.slice(3, 6));
+      if (digits.length >= 7) parts.push(digits.slice(6, 9));
+      const rest = digits.slice(9, 11);
+      const main = parts.filter(Boolean).join('.');
+      return rest ? `${main}-${rest}` : main;
+    }
+
+    const cpfInput = document.getElementById('cpf');
+    if (cpfInput) {
+      cpfInput.addEventListener('input', (e) => {
+        const { value } = e.target;
+        const formatted = formatCpf(value);
+        if (formatted !== value) {
+          const pos = e.target.selectionStart || 0;
+          e.target.value = formatted;
+          e.target.setSelectionRange(formatted.length, formatted.length);
+        }
+        e.target.classList.toggle('has-value', !!e.target.value);
+      });
+    }
+
+    // Mascara Telefone durante a digitação ((99) 99999-9999 ou (99) 9999-9999)
+    function formatTelefone(value) {
+      const digits = String(value || '').replace(/\D/g, '').slice(0, 11);
+      if (digits.length <= 2) return digits;
+      const ddd = digits.slice(0, 2);
+      const number = digits.slice(2);
+      if (number.length <= 4) return `(${ddd}) ${number}`;
+      if (number.length <= 8) return `(${ddd}) ${number.slice(0, 4)}-${number.slice(4)}`;
+      return `(${ddd}) ${number.slice(0, 5)}-${number.slice(5)}`;
+    }
+
+    const telInput = document.getElementById('telefone');
+    if (telInput) {
+      telInput.addEventListener('input', (e) => {
+        const { value } = e.target;
+        const formatted = formatTelefone(value);
+        if (formatted !== value) {
+          e.target.value = formatted;
+          e.target.setSelectionRange(formatted.length, formatted.length);
+        }
+        e.target.classList.toggle('has-value', !!e.target.value);
+      });
+    }
+
+    ['veracidade', 'termos', 'privacidade'].forEach((id) => {
+      const checkbox = document.getElementById(id);
+      if (!checkbox) return;
+      checkbox.addEventListener('change', () => {
+        const allChecked = document.getElementById('veracidade').checked && document.getElementById('termos').checked && document.getElementById('privacidade').checked;
+        if (allChecked) setConsentError('');
+        setFormError('');
+      });
+    });
+
+    function openTermos() {
+      const modal = document.getElementById('modalTermos');
+      if (!modal) return;
+      modal.classList.add('active');
+      const modalCheck = document.getElementById('modalTermosAceite');
+      const termos = document.getElementById('termos');
+      if (modalCheck && termos) modalCheck.checked = termos.checked;
+    }
+
+    function closeTermos() {
+      const modal = document.getElementById('modalTermos');
+      if (!modal) return;
+      modal.classList.remove('active');
+    }
+
+    function openPrivacidade() {
+      const modal = document.getElementById('modalPrivacidade');
+      if (!modal) return;
+      modal.classList.add('active');
+      const modalCheck = document.getElementById('modalPrivacidadeAceite');
+      const priv = document.getElementById('privacidade');
+      if (modalCheck && priv) modalCheck.checked = priv.checked;
+    }
+
+    function closePrivacidade() {
+      const modal = document.getElementById('modalPrivacidade');
+      if (!modal) return;
+      modal.classList.remove('active');
+    }
+
+    // Fecha modal ao clicar fora
+    document.addEventListener('click', (e) => {
+      const modal = document.getElementById('modalTermos');
+      const modalPriv = document.getElementById('modalPrivacidade');
+      if (modal && modal.classList.contains('active') && e.target === modal) closeTermos();
+      if (modalPriv && modalPriv.classList.contains('active') && e.target === modalPriv) closePrivacidade();
+    });
+
+    // Fecha modal com Esc
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') {
+        closeTermos();
+        closePrivacidade();
+      }
+    });
+
+    let syncTermos = false;
+    const modalTermosAceite = document.getElementById('modalTermosAceite');
+    if (modalTermosAceite) {
+      modalTermosAceite.addEventListener('change', () => {
+        const termos = document.getElementById('termos');
+        if (termos) {
+          syncTermos = true;
+          termos.checked = modalTermosAceite.checked;
+          termos.dispatchEvent(new Event('change'));
+          syncTermos = false;
+        }
+      });
+    }
+
+    let syncPrivacidade = false;
+    const modalPrivacidadeAceite = document.getElementById('modalPrivacidadeAceite');
+    if (modalPrivacidadeAceite) {
+      modalPrivacidadeAceite.addEventListener('change', () => {
+        const priv = document.getElementById('privacidade');
+        if (priv) {
+          syncPrivacidade = true;
+          priv.checked = modalPrivacidadeAceite.checked;
+          priv.dispatchEvent(new Event('change'));
+          syncPrivacidade = false;
+        }
+      });
+    }
+
+    // Ao marcar termos pela primeira vez, abre o modal e só marca após aceitar lá
+    const termosMain = document.getElementById('termos');
+    if (termosMain) {
+      termosMain.addEventListener('change', () => {
+        if (syncTermos) return;
+        if (termosMain.checked) {
+          termosMain.checked = false;
+          openTermos();
+        }
+      });
+    }
+
+    // Ao marcar privacidade pela primeira vez, abre o modal e só marca após aceitar lá
+    const privMain = document.getElementById('privacidade');
+    if (privMain) {
+      privMain.addEventListener('change', () => {
+        if (syncPrivacidade) return;
+        if (privMain.checked) {
+          privMain.checked = false;
+          openPrivacidade();
+        }
+      });
+    }
+
+    // Em alguns casos (autofill/gerador de senha), o navegador preenche sem disparar eventos
+    window.addEventListener('DOMContentLoaded', () => {
+      document.querySelectorAll('.field input').forEach((input) => {
+        input.classList.toggle('has-value', !!input.value);
+      });
+
+      // segundo sync: alguns gerenciadores preenchem logo após o load
+      setTimeout(() => {
+        document.querySelectorAll('.field input').forEach((input) => {
+          input.classList.toggle('has-value', !!input.value);
+        });
+      }, 250);
+    });
+
+    function voltar() {
+      window.location.href = 'login-servidor.html';
+    }
+
+    document.getElementById('form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      setFormError('');
+
+      const btn = document.getElementById('btnSubmit');
+
+      const nome = document.getElementById('nome').value.trim();
+      const cpf = document.getElementById('cpf').value.trim();
+      const cpfDigits = cpf.replace(/\D/g, '');
+      const nascimento = document.getElementById('nascimento').value;
+      const email = document.getElementById('email').value.trim();
+      const telefone = document.getElementById('telefone').value.trim();
+      const telefoneDigits = telefone.replace(/\D/g, '');
+      const senha = document.getElementById('senha').value;
+      const senha2 = document.getElementById('senha2').value;
+      const veracidade = document.getElementById('veracidade').checked;
+      const termos = document.getElementById('termos').checked;
+      const privacidade = document.getElementById('privacidade').checked;
+
+      ['nome','cpf','nascimento','email','telefone','senha','senha2'].forEach(clearFieldError);
+      setConsentError('');
+
+      let hasError = false;
+      if (!nome) { setFieldError('nome', 'Informe seu nome.'); hasError = true; }
+      if (!cpfDigits) { setFieldError('cpf', 'Informe seu CPF.'); hasError = true; }
+      if (!nascimento) { setFieldError('nascimento', 'Informe sua data de nascimento.'); hasError = true; }
+      if (!email) { setFieldError('email', 'Informe seu e-mail.'); hasError = true; }
+      else if (!isValidEmail(email)) { setFieldError('email', 'Informe um e-mail válido.'); hasError = true; }
+      if (!telefoneDigits) { setFieldError('telefone', 'Informe um telefone para contato.'); hasError = true; }
+      else if (telefoneDigits.length < 10) { setFieldError('telefone', 'Informe um telefone válido (DDD + número).'); hasError = true; }
+      if (!senha) {
+        setFieldError('senha', 'Informe uma senha.');
+        setFormError('Crie uma senha com no minimo 8 caracteres, com letras e numeros, sem espacos.');
+        hasError = true;
+      } else {
+        const pwdErr = getPasswordError(senha);
+        if (pwdErr) { setFieldError('senha', pwdErr); hasError = true; }
+      }
+      if (!senha2) { setFieldError('senha2', 'Confirme a senha.'); hasError = true; }
+      if (senha && senha2 && senha !== senha2) { setFieldError('senha2', 'As senhas não conferem.'); hasError = true; }
+      if (!veracidade || !termos || !privacidade) {
+        setConsentError('Confirme a veracidade das informações e aceite os Termos e a Política.');
+        hasError = true;
+      }
+      if (hasError) return;
+
+      setButtonLoading(btn, true);
+      try {
+        await API.request('/api/auth/register-cidadao', {
+          method: 'POST',
+          body: JSON.stringify({
+            nome,
+            cpf,
+            nascimento,
+            email,
+            telefone,
+            password: senha,
+            aceitaVeracidade: veracidade,
+            aceitaTermos: termos,
+            aceitaPrivacidade: privacidade,
+          })
+        });
+        // Cadastro feito: volta para o login
+        window.location.href = 'login-servidor.html';
+      } catch (err) {
+        setFormError(err.message);
+      } finally {
+        setButtonLoading(btn, false);
+      }
+    });
+  </script>
+</body>
+</html>
