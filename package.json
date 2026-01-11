@@ -5,10 +5,16 @@
   "type": "module",
   "scripts": {
     "db:init": "node server/init-db.js",
+    "db:migrate": "node server/migrate-db.js",
     "admin:create": "node server/cli-create-admin.js",
     "servidor:reset-password": "node server/cli-reset-servidor-password.js",
     "dev": "node server/index.js",
-    "start": "node server/index.js"
+    "start": "node server/index.js",
+    "pm2:start": "pm2 start ecosystem.config.js --env production",
+    "pm2:stop": "pm2 stop protocolos",
+    "pm2:restart": "pm2 restart protocolos",
+    "pm2:logs": "pm2 logs protocolos",
+    "pm2:monit": "pm2 monit"
   },
   "dependencies": {
     "connect-pg-simple": "^10.0.0",
